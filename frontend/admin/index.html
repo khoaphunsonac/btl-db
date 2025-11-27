@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - NEMTHUNG Admin</title>
+    <meta name="description" content="NEMTHUNG E-commerce Admin Dashboard">
+    
+    <!-- Tabler CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet"/>
+    
+    <!-- FINAL FIXED SIDEBAR CSS -->
+    <link rel="stylesheet" href="./fixed-sidebar.css?v=1">
+    
+    <style>
+        /* Other styles */
+        .stat-card {
+            transition: all 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <!-- Sidebar -->
+        <div class="mount-admin-sidebar"></div>
+
+        <!-- Main Content -->
+        <div class="page-wrapper">
+            <!-- Page header -->
+            <div class="page-header d-print-none">
+                <div class="container-xl">
+                    <div class="row g-2 align-items-center">
+                        <div class="col">
+                            <h2 class="page-title">
+                                Dashboard
+                            </h2>
+                            <div class="text-muted mt-1">Chào mừng đến với NEMTHUNG Admin - Hệ thống quản lý E-commerce công nghệ</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page body -->
+            <div class="page-body">
+                <div class="container-xl">
+                    <!-- Statistics -->
+                    <div class="row row-cards mb-3">
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card stat-card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="subheader">Sản phẩm</div>
+                                        <div class="ms-auto lh-1">
+                                            <i class="ti ti-package text-blue" style="font-size: 2rem;"></i>
+                                        </div>
+                                    </div>
+                                    <div class="h1 mb-0" id="stat-products">--</div>
+                                    <div class="text-muted mt-1">Tổng số sản phẩm</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card stat-card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="subheader">Đơn hàng</div>
+                                        <div class="ms-auto lh-1">
+                                            <i class="ti ti-shopping-cart text-green" style="font-size: 2rem;"></i>
+                                        </div>
+                                    </div>
+                                    <div class="h1 mb-0" id="stat-orders">--</div>
+                                    <div class="text-muted mt-1">Tổng đơn hàng</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card stat-card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="subheader">Khách hàng</div>
+                                        <div class="ms-auto lh-1">
+                                            <i class="ti ti-users text-yellow" style="font-size: 2rem;"></i>
+                                        </div>
+                                    </div>
+                                    <div class="h1 mb-0" id="stat-customers">--</div>
+                                    <div class="text-muted mt-1">Tổng khách hàng</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card stat-card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="subheader">Doanh thu</div>
+                                        <div class="ms-auto lh-1">
+                                            <i class="ti ti-currency-dollar text-purple" style="font-size: 2rem;"></i>
+                                        </div>
+                                    </div>
+                                    <div class="h1 mb-0" id="stat-revenue">--</div>
+                                    <div class="text-muted mt-1">Tổng doanh thu</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Links -->
+                    <div class="row row-cards">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Truy cập nhanh</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <a href="./products/admin_products.html" class="btn btn-outline-primary w-100" style="height: 60px; display: flex; align-items: center; justify-content: center;">
+                                                <i class="ti ti-package me-2"></i>
+                                                Quản lý Sản phẩm
+                                            </a>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <a href="./products/admin_orders.html" class="btn btn-outline-success w-100" style="height: 60px; display: flex; align-items: center; justify-content: center;">
+                                                <i class="ti ti-shopping-cart me-2"></i>
+                                                Quản lý Đơn hàng
+                                            </a>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <a href="./products/categories.html" class="btn btn-outline-info w-100" style="height: 60px; display: flex; align-items: center; justify-content: center;">
+                                                <i class="ti ti-folder me-2"></i>
+                                                Quản lý Danh mục
+                                            </a>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <a href="./customers/index.html" class="btn btn-outline-warning w-100" style="height: 60px; display: flex; align-items: center; justify-content: center;">
+                                                <i class="ti ti-users me-2"></i>
+                                                Quản lý Khách hàng
+                                            </a>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <a href="./discounts/index.html" class="btn btn-outline-danger w-100" style="height: 60px; display: flex; align-items: center; justify-content: center;">
+                                                <i class="ti ti-ticket me-2"></i>
+                                                Mã Giảm giá
+                                            </a>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <a href="./ratings/index.html" class="btn btn-outline-purple w-100" style="height: 60px; display: flex; align-items: center; justify-content: center;">
+                                                <i class="ti ti-star me-2"></i>
+                                                Quản lý Đánh giá
+                                            </a>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <a href="./contact/index.html" class="btn btn-outline-secondary w-100" style="height: 60px; display: flex; align-items: center; justify-content: center;">
+                                                <i class="ti ti-mail me-2"></i>
+                                                Liên hệ & Hỗ trợ
+                                            </a>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <a href="./reports/index.html" class="btn btn-outline-secondary w-100" style="height: 60px; display: flex; align-items: center; justify-content: center;">
+                                                <i class="ti ti-chart-bar me-2"></i>
+                                                Báo cáo & Thống kê
+                                            </a>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <a href="./settings/index.html" class="btn btn-outline-secondary w-100" style="height: 60px; display: flex; align-items: center; justify-content: center;">
+                                                <i class="ti ti-settings me-2"></i>
+                                                Cài đặt Hệ thống
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="footer footer-transparent d-print-none">
+                <div class="container-xl">
+                    <div class="row text-center align-items-center">
+                        <div class="col-12 col-lg-auto mt-3 mt-lg-0">
+                            <ul class="list-inline list-inline-dots mb-0">
+                                <li class="list-inline-item">
+                                    NEMTHUNG E-commerce Admin © 2024
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Tabler JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/js/tabler.min.js"></script>
+    
+    <!-- SIDEBAR FIX SCRIPT -->
+    <script type="module" src="./sidebar-fix.js?v=2"></script>
+    
+    <!-- AUTO SCHEDULER - Tự động cập nhật scheduled posts -->
+    <script type="module" src="./utils/auto-scheduler.js"></script>
+    
+    <script type="module">
+      import { mountAdminSidebar } from '../components/AdminSidebar.js';
+      document.addEventListener('DOMContentLoaded', () => {
+        mountAdminSidebar('.mount-admin-sidebar', 'dashboard');
+        loadDashboardStats();
+      });
+      
+      // Load dashboard statistics
+      async function loadDashboardStats() {
+        try {
+          const API_URL = window.ENV?.API_URL || 'http://localhost/btl-db/backend';
+          const response = await fetch(`${API_URL}/api/statistics/dashboard`);
+          const data = await response.json();
+          
+          if (data.success) {
+            // Update statistics
+            document.getElementById('stat-products').textContent = data.data.total_products || 0;
+            document.getElementById('stat-orders').textContent = data.data.total_orders || 0;
+            document.getElementById('stat-customers').textContent = data.data.total_customers || 0;
+            
+            // Format currency for revenue
+            const revenue = data.data.total_revenue || 0;
+            document.getElementById('stat-revenue').textContent = formatCurrency(revenue);
+          } else {
+            console.log('Using demo data for statistics');
+          }
+        } catch (error) {
+          console.error('Failed to load dashboard stats:', error);
+          // Use demo data if API fails
+          document.getElementById('stat-products').textContent = '156';
+          document.getElementById('stat-orders').textContent = '1,234';
+          document.getElementById('stat-customers').textContent = '532';
+          document.getElementById('stat-revenue').textContent = '125.5M đ';
+        }
+      }
+      
+      // Format currency helper
+      function formatCurrency(amount) {
+        if (amount >= 1000000000) {
+          return (amount / 1000000000).toFixed(1) + 'B đ';
+        } else if (amount >= 1000000) {
+          return (amount / 1000000).toFixed(1) + 'M đ';
+        } else if (amount >= 1000) {
+          return (amount / 1000).toFixed(1) + 'K đ';
+        }
+        return new Intl.NumberFormat('vi-VN', {
+          style: 'currency',
+          currency: 'VND'
+        }).format(amount);
+      }
+    </script>
+</body>
+</html>
+

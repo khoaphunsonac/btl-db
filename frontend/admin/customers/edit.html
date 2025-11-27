@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thêm/Sửa khách hàng - NEMTHUNG Admin</title>
+
+    <!-- Tabler CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet"/>
+
+    <!-- FINAL FIXED SIDEBAR CSS -->
+    <link rel="stylesheet" href="../fixed-sidebar.css?v=1">
+</head>
+
+<body>
+    <div class="page">
+        <!-- Sidebar -->
+        <div class="mount-admin-sidebar"></div>
+
+        <!-- Main Content -->
+        <div class="page-wrapper">
+            <!-- Page header -->
+            <div class="page-header d-print-none">
+                <div class="container-xl">
+                    <div class="row g-2 align-items-center">
+                        <div class="col">
+                            <h2 class="page-title" id="pageTitle">Thêm khách hàng mới</h2>
+                            <div class="text-muted mt-1">Điền thông tin khách hàng vào form bên dưới</div>
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-outline-secondary" onclick="window.location.href='./index.html'">
+                                <i class="ti ti-arrow-left"></i> Quay lại
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page body -->
+            <div class="page-body">
+                <div class="container-xl">
+                    <form id="customerForm">
+                        <div class="row">
+                            <!-- Main Information -->
+                            <div class="col-lg-8">
+                                <div class="card mb-3">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Thông tin cơ bản</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label required">Họ</label>
+                                                <input type="text" class="form-control" id="lname" name="lname" required>
+                                                <div class="invalid-feedback">Vui lòng nhập họ</div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label required">Tên</label>
+                                                <input type="text" class="form-control" id="fname" name="fname" required>
+                                                <div class="invalid-feedback">Vui lòng nhập tên</div>
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label required">Email</label>
+                                                <input type="email" class="form-control" id="email" name="email" required>
+                                                <div class="invalid-feedback">Vui lòng nhập email hợp lệ</div>
+                                                <small class="form-hint">Email sẽ được dùng để đăng nhập</small>
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label required">Số điện thoại</label>
+                                                <input type="tel" class="form-control" id="phone" name="phone" required pattern="[0-9]{10,11}">
+                                                <div class="invalid-feedback">Vui lòng nhập số điện thoại hợp lệ (10-11 số)</div>
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label required">Địa chỉ</label>
+                                                <textarea class="form-control" id="address" name="address" rows="3" required></textarea>
+                                                <div class="invalid-feedback">Vui lòng nhập địa chỉ</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Password Section (Only for new customer) -->
+                                <div class="card mb-3" id="passwordSection">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Mật khẩu</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label required">Mật khẩu</label>
+                                                <input type="password" class="form-control" id="password" name="password">
+                                                <div class="invalid-feedback">Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số</div>
+                                                <small class="form-hint">Tối thiểu 8 ký tự, có chữ HOA, chữ thường và số</small>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label required">Xác nhận mật khẩu</label>
+                                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword">
+                                                <div class="invalid-feedback">Mật khẩu xác nhận không khớp</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Change Password Section (Only for edit) -->
+                                <div class="card mb-3" id="changePasswordSection" style="display: none;">
+                                    <div class="card-header">
+                                        <div class="d-flex align-items-center">
+                                            <h3 class="card-title">Đổi mật khẩu</h3>
+                                            <div class="ms-auto">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="enableChangePassword">
+                                                    <label class="form-check-label" for="enableChangePassword">Đổi mật khẩu</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body" id="changePasswordFields" style="display: none;">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Mật khẩu mới</label>
+                                                <input type="password" class="form-control" id="newPassword" name="newPassword">
+                                                <small class="form-hint">Tối thiểu 8 ký tự, có chữ HOA, chữ thường và số</small>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Xác nhận mật khẩu mới</label>
+                                                <input type="password" class="form-control" id="confirmNewPassword" name="confirmNewPassword">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sidebar -->
+                            <div class="col-lg-4">
+                                <!-- Status Card -->
+                                <div class="card mb-3">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Trạng thái</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <label class="form-label">Trạng thái tài khoản</label>
+                                        <select class="form-select" id="status" name="status">
+                                            <option value="Hoạt động">Hoạt động</option>
+                                            <option value="Ngưng hoạt động">Ngưng hoạt động</option>
+                                        </select>
+                                        <small class="form-hint">Tài khoản ngưng hoạt động sẽ không thể đăng nhập</small>
+                                    </div>
+                                </div>
+
+                                <!-- Actions Card -->
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-grid gap-2">
+                                            <button type="submit" class="btn btn-primary" id="btnSubmit">
+                                                <i class="ti ti-device-floppy"></i> Lưu thông tin
+                                            </button>
+                                            <button type="button" class="btn btn-outline-secondary" onclick="window.location.href='./index.html'">
+                                                <i class="ti ti-x"></i> Hủy bỏ
+                                            </button>
+                                            <button type="button" class="btn btn-outline-danger" id="btnDelete" style="display: none;">
+                                                <i class="ti ti-trash"></i> Xóa khách hàng
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Info Card (Only for edit) -->
+                                <div class="card mt-3" id="infoCard" style="display: none;">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Thông tin</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-2">
+                                            <small class="text-muted">Ngày tạo:</small>
+                                            <div id="createdAt">-</div>
+                                        </div>
+                                        <div class="mb-2">
+                                            <small class="text-muted">Đăng nhập gần nhất:</small>
+                                            <div id="lastLogin">-</div>
+                                        </div>
+                                        <div>
+                                            <small class="text-muted">Tổng đơn hàng:</small>
+                                            <div id="totalOrders">-</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabler JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/js/tabler.min.js"></script>
+    
+    <!-- Load AdminSidebar -->
+    <script type="module">
+        import { mountAdminSidebar } from '../../components/AdminSidebar.js';
+        document.addEventListener('DOMContentLoaded', () => {
+            mountAdminSidebar('.mount-admin-sidebar', 'admin-customers');
+        });
+    </script>
+
+    <!-- Customer Edit Script -->
+    <script type="module" src="./admin_customers_edit.js"></script>
+</body>
+</html>

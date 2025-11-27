@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản lý bài viết - Admin</title>
+
+    <!-- Tabler CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet"/>
+
+    <!-- FINAL FIXED SIDEBAR CSS -->
+    <link rel="stylesheet" href="../fixed-sidebar.css?v=1">
+    
+    <style>
+        .excerpt-preview {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #6c757d;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <!-- Sidebar -->
+        <div class="mount-admin-sidebar"></div>
+
+        <!-- Main Content -->
+        <div class="page-wrapper">
+            <!-- Page header -->
+            <div class="page-header d-print-none">
+                <div class="container-xl">
+                    <div class="row g-2 align-items-center">
+                        <div class="col">
+                            <h2 class="page-title">Quản lý bài viết</h2>
+                            <div class="text-muted mt-1">Quản lý tin tức và bài viết trên trang web</div>
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-primary" id="btnAdd">
+                                <i class="ti ti-plus"></i> Thêm bài viết
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page body -->
+            <div class="page-body">
+                <div class="container-xl">
+                    <!-- Statistics Cards -->
+                    <div class="row row-cards mb-3">
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="subheader">Tổng số</div>
+                                    </div>
+                                    <div class="h1 mb-0" id="stat-total">0</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="subheader">Hôm nay</div>
+                                    </div>
+                                    <div class="h1 mb-0 text-blue" id="stat-today">0</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="subheader">Tuần này</div>
+                                    </div>
+                                    <div class="h1 mb-0 text-green" id="stat-week">0</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="subheader">Tháng này</div>
+                                    </div>
+                                    <div class="h1 mb-0 text-yellow" id="stat-month">0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filters -->
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Tìm kiếm</label>
+                                    <input type="text" class="form-control" id="searchPost" placeholder="Tìm theo tiêu đề, nội dung...">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Tác giả</label>
+                                    <input type="text" class="form-control" id="filterAuthor" placeholder="Tên tác giả">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">&nbsp;</label>
+                                    <button class="btn btn-primary w-100" id="btnFilter">
+                                        <i class="ti ti-filter"></i> Lọc
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Posts Table -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Danh sách bài viết</h3>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-vcenter card-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Tiêu đề</th>
+                                        <th>Tác giả</th>
+                                        <th>Trạng thái</th>
+                                        <th>Ngày xuất bản</th>
+                                        <th>Ngày tạo</th>
+                                        <th class="w-1">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="newsTableBody">
+                                    <tr>
+                                        <td colspan="7" class="text-center py-4">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Đang tải...</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-footer d-flex align-items-center">
+                            <p class="m-0 text-muted">Hiển thị <span id="showingRange">0-0</span> trong tổng số <span id="totalPosts">0</span></p>
+                            <ul class="pagination m-0 ms-auto" id="pagination"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Tabler JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/js/tabler.min.js"></script>
+    
+    <!-- SIDEBAR FIX SCRIPT -->
+    <script src="../sidebar-fix.js?v=2"></script>
+    
+    <!-- AUTO SCHEDULER - Tự động cập nhật scheduled posts -->
+    <script type="module" src="../utils/auto-scheduler.js"></script>
+    
+    <!-- Custom JS -->
+    <script type="module" src="./admin_news.js?v=4"></script>
+    <script type="module">
+      import { mountAdminSidebar } from '../../components/AdminSidebar.js';
+      document.addEventListener('DOMContentLoaded', () => {
+        mountAdminSidebar('.mount-admin-sidebar', 'admin-news');
+      });
+    </script>
+</body>
+</html>

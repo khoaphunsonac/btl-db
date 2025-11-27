@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chi tiết khách hàng - NEMTHUNG Admin</title>
+
+    <!-- Tabler CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet"/>
+
+    <!-- FINAL FIXED SIDEBAR CSS -->
+    <link rel="stylesheet" href="../fixed-sidebar.css?v=1">
+</head>
+
+<body>
+    <div class="page">
+        <!-- Sidebar -->
+        <div class="mount-admin-sidebar"></div>
+
+        <!-- Main Content -->
+        <div class="page-wrapper">
+            <!-- Page header -->
+            <div class="page-header d-print-none">
+                <div class="container-xl">
+                    <div class="row g-2 align-items-center">
+                        <div class="col">
+                            <h2 class="page-title">Chi tiết khách hàng</h2>
+                            <div class="text-muted mt-1">Xem thông tin chi tiết và lịch sử mua hàng</div>
+                        </div>
+                        <div class="col-auto">
+                            <div class="btn-list">
+                                <button class="btn btn-outline-secondary" onclick="window.location.href='./index.html'">
+                                    <i class="ti ti-arrow-left"></i> Quay lại
+                                </button>
+                                <button class="btn btn-primary" id="btnEdit">
+                                    <i class="ti ti-edit"></i> Chỉnh sửa
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page body -->
+            <div class="page-body">
+                <div class="container-xl">
+                    <div class="row">
+                        <!-- Customer Info -->
+                        <div class="col-lg-4">
+                            <!-- Profile Card -->
+                            <div class="card mb-3">
+                                <div class="card-body text-center">
+                                    <div class="mb-3">
+                                        <span class="avatar avatar-xl" id="customerAvatar" style="font-size: 2rem;">
+                                            ?
+                                        </span>
+                                    </div>
+                                    <h3 class="mb-1" id="customerName">-</h3>
+                                    <div class="text-muted mb-3" id="customerEmail">-</div>
+                                    <span class="badge" id="customerStatus">-</span>
+                                </div>
+                            </div>
+
+                            <!-- Contact Info -->
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h3 class="card-title">Thông tin liên hệ</h3>
+                                </div>
+                                <div class="list-group list-group-flush">
+                                    <div class="list-group-item">
+                                        <div class="row align-items-center">
+                                            <div class="col-auto">
+                                                <i class="ti ti-mail text-muted"></i>
+                                            </div>
+                                            <div class="col">
+                                                <small class="text-muted">Email</small>
+                                                <div id="detailEmail">-</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="list-group-item">
+                                        <div class="row align-items-center">
+                                            <div class="col-auto">
+                                                <i class="ti ti-phone text-muted"></i>
+                                            </div>
+                                            <div class="col">
+                                                <small class="text-muted">Số điện thoại</small>
+                                                <div id="detailPhone">-</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="list-group-item">
+                                        <div class="row align-items-center">
+                                            <div class="col-auto">
+                                                <i class="ti ti-map-pin text-muted"></i>
+                                            </div>
+                                            <div class="col">
+                                                <small class="text-muted">Địa chỉ</small>
+                                                <div id="detailAddress">-</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Account Info -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Thông tin tài khoản</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <small class="text-muted">Ngày đăng ký</small>
+                                        <div id="createdAt">-</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <small class="text-muted">Đăng nhập gần nhất</small>
+                                        <div id="lastLogin">-</div>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted">ID khách hàng</small>
+                                        <div id="customerId">-</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Activity & Orders -->
+                        <div class="col-lg-8">
+                            <!-- Statistics -->
+                            <div class="row row-cards mb-3">
+                                <div class="col-md-4">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-center">
+                                                <div class="subheader">Tổng đơn hàng</div>
+                                                <div class="ms-auto">
+                                                    <i class="ti ti-shopping-cart text-blue" style="font-size: 1.5rem;"></i>
+                                                </div>
+                                            </div>
+                                            <div class="h1 mb-0" id="statOrders">0</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-center">
+                                                <div class="subheader">Tổng chi tiêu</div>
+                                                <div class="ms-auto">
+                                                    <i class="ti ti-currency-dollar text-green" style="font-size: 1.5rem;"></i>
+                                                </div>
+                                            </div>
+                                            <div class="h1 mb-0" id="statSpent">0đ</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-center">
+                                                <div class="subheader">Đơn hoàn thành</div>
+                                                <div class="ms-auto">
+                                                    <i class="ti ti-check text-yellow" style="font-size: 1.5rem;"></i>
+                                                </div>
+                                            </div>
+                                            <div class="h1 mb-0" id="statCompleted">0</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Order History -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Lịch sử đơn hàng</h3>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table card-table table-vcenter">
+                                        <thead>
+                                            <tr>
+                                                <th>Mã đơn</th>
+                                                <th>Ngày đặt</th>
+                                                <th>Tổng tiền</th>
+                                                <th>Trạng thái</th>
+                                                <th class="text-end">Thao tác</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="orderTableBody">
+                                            <tr>
+                                                <td colspan="5" class="text-center">
+                                                    <div class="spinner-border" role="status">
+                                                        <span class="visually-hidden">Đang tải...</span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-muted">Hiển thị 5 đơn hàng gần nhất</span>
+                                        <a href="../products/admin_orders.html" class="btn btn-sm btn-outline-primary">
+                                            Xem tất cả <i class="ti ti-arrow-right"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabler JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/js/tabler.min.js"></script>
+    
+    <!-- Load AdminSidebar -->
+    <script type="module">
+        import { mountAdminSidebar } from '../../components/AdminSidebar.js';
+        document.addEventListener('DOMContentLoaded', () => {
+            mountAdminSidebar('.mount-admin-sidebar', 'admin-customers');
+        });
+    </script>
+
+    <!-- Customer Detail Script -->
+    <script type="module" src="./admin_customers_detail.js"></script>
+</body>
+</html>

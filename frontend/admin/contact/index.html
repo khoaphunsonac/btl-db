@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Liên hệ - Admin</title>
+    
+    <!-- Tabler CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet"/>
+    
+    <!-- FINAL FIXED SIDEBAR CSS -->
+    <link rel="stylesheet" href="../fixed-sidebar.css?v=1">
+    
+    <style>
+        /* Existing styles */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-new {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .status-read {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        .status-replied {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        .message-preview {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <!-- Sidebar -->
+        <div class="mount-admin-sidebar"></div>
+
+        <!-- Main Content -->
+        <div class="page-wrapper">
+            <!-- Page header -->
+            <div class="page-header d-print-none">
+                <div class="container-xl">
+                    <div class="row g-2 align-items-center">
+                        <div class="col">
+                            <h2 class="page-title">
+                                Quản lý Liên hệ
+                            </h2>
+                            <div class="text-muted mt-1">Quản lý và phản hồi các tin nhắn từ khách hàng</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page body -->
+            <div class="page-body">
+                <div class="container-xl">
+                    <!-- Statistics Cards -->
+                    <div class="row row-cards mb-3">
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="subheader">Tổng số</div>
+                                    </div>
+                                    <div class="h1 mb-0" id="stat-total">0</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="subheader">Mới</div>
+                                    </div>
+                                    <div class="h1 mb-0 text-warning" id="stat-new">0</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="subheader">Đã đọc</div>
+                                    </div>
+                                    <div class="h1 mb-0 text-blue" id="stat-read">0</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="subheader">Đã phản hồi</div>
+                                    </div>
+                                    <div class="h1 mb-0 text-success" id="stat-replied">0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filters -->
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">Tìm kiếm</label>
+                                    <input type="text" class="form-control" id="searchInput" placeholder="Tìm theo tên, email, nội dung...">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Trạng thái</label>
+                                    <select class="form-select" id="filterStatus">
+                                        <option value="">Tất cả</option>
+                                        <option value="new">Mới</option>
+                                        <option value="read">Đã đọc</option>
+                                        <option value="replied">Đã phản hồi</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">&nbsp;</label>
+                                    <button class="btn btn-primary w-100" id="btnFilter">
+                                        <i class="ti ti-filter"></i> Lọc
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contacts Table -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Danh sách liên hệ</h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-vcenter card-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Tên</th>
+                                        <th>Email</th>
+                                        <th>Điện thoại</th>
+                                        <th>Chủ đề</th>
+                                        <th>Tin nhắn</th>
+                                        <th>Trạng thái</th>
+                                        <th>Ngày gửi</th>
+                                        <th class="w-1">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="contactsTableBody">
+                                    <tr>
+                                        <td colspan="9" class="text-center py-4">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Đang tải...</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-footer d-flex align-items-center">
+                            <p class="m-0 text-muted">Hiển thị <span id="showingRange">0-0</span> trong tổng số <span id="totalContacts">0</span></p>
+                            <ul class="pagination m-0 ms-auto" id="pagination"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Detail Modal -->
+    <div class="modal modal-blur fade" id="viewModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Chi tiết liên hệ</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <strong>Tên:</strong>
+                            <div id="detailName"></div>
+                        </div>
+                        <div class="col-6">
+                            <strong>Email:</strong>
+                            <div id="detailEmail"></div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <strong>Điện thoại:</strong>
+                            <div id="detailPhone"></div>
+                        </div>
+                        <div class="col-6">
+                            <strong>Ngày gửi:</strong>
+                            <div id="detailDate"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Chủ đề:</strong>
+                        <div id="detailSubject"></div>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Nội dung:</strong>
+                        <div id="detailMessage" class="border rounded p-3"></div>
+                    </div>
+                    <div>
+                        <strong>Trạng thái:</strong>
+                        <div id="detailStatus"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-success" id="btnMarkReplied">
+                        <i class="ti ti-check"></i> Đánh dấu đã phản hồi
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabler JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/js/tabler.min.js"></script>
+    
+    <!-- SIDEBAR FIX SCRIPT -->
+    <script src="../sidebar-fix.js?v=2"></script>
+    
+    <!-- Custom JS -->
+    <script type="module" src="./contacts.js"></script>
+    <script type="module">
+      import { mountAdminSidebar } from '../../components/AdminSidebar.js';
+      document.addEventListener('DOMContentLoaded', () => {
+        mountAdminSidebar('.mount-admin-sidebar', 'admin-contact');
+      });
+    </script>
+</body>
+</html>
+

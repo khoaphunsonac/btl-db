@@ -1,0 +1,93 @@
+.fixed-sidebar {
+    background-color: #1e293b !important;
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 260px !important;
+    overflow-y: auto !important;
+}
+
+.fixed-sidebar .navbar-nav .nav-item {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+}
+
+.fixed-sidebar .navbar-nav .nav-link {
+    color: #ffffff !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0.75rem 1.5rem !important;
+    text-decoration: none !important;
+    position: relative !important;
+    font-size: 0.925rem !important;
+}
+
+.fixed-sidebar .nav-link span,
+.fixed-sidebar .nav-link i,
+.fixed-sidebar .nav-link .nav-link-icon,
+.fixed-sidebar .nav-link .nav-link-title {
+    color: #ffffff !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: inline-flex !important;
+    align-items: center !important;
+}
+
+.fixed-sidebar .nav-link:hover {
+    background-color: rgba(32, 107, 196, 0.3) !important;
+    color: #ffffff !important;
+    cursor: pointer !important;
+}
+
+.fixed-sidebar .nav-link.active {
+    background-color: rgba(32, 107, 196, 0.5) !important;
+    color: #ffffff !important;
+    font-weight: 500 !important;
+}
+
+.fixed-sidebar .nav-link-icon {
+    margin-right: 0.75rem !important;
+    font-size: 1.25rem !important;
+}
+
+.fixed-sidebar .nav-link::before,
+.fixed-sidebar .nav-link::after {
+    display: none !important;
+}
+
+.fixed-sidebar .nav-item,
+.fixed-sidebar .nav-link,
+.fixed-sidebar .nav-link * {
+    transition: background 0.2s ease-in-out !important;
+    animation: none !important;
+    transform: none !important;
+}
+
+.fixed-sidebar .collapse.navbar-collapse,
+.fixed-sidebar .navbar-nav {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+}
+
+.page .page-wrapper {
+    margin-left: 260px !important;
+}
+
+@media (max-width: 991.98px) {
+    .fixed-sidebar {
+        position: static !important;
+        width: 100% !important;
+        height: auto !important;
+    }
+    .page .page-wrapper {
+        margin-left: 0 !important;
+    }
+}

@@ -1,0 +1,43 @@
+.tabs {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 6px;
+}
+
+.tabs button {
+    padding: 8px 16px;
+    border: none;
+    cursor: pointer;
+    background: #f1f5f9;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.tabs button.active {
+    background: #2563eb;
+    color: white;
+}
+
+.tabs button:hover:not(.active) {
+    background: #e2e8f0;
+}
+
+.section {
+    display: none;
+    margin-top: 15px;
+}
+
+.section.active {
+    display: block;
+}
+
+h2 {
+    margin-bottom: 10px;
+    font-size: 18px;
+    color: #333;
+}
+
+.td-actions {
+    white-space: nowrap;
+}

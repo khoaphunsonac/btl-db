@@ -1,0 +1,96 @@
+# PHP
+/vendor/
+/.phpunit.result.cache
+.phpunit.result.cache
+/.php_cs.cache
+/.php_cs.cache/
+
+# Composer
+composer.phar
+composer.lock
+
+# Environment
+.env
+.env.local
+.env.*.local
+.env.backup
+.env.production
+.env.testing
+
+# Laravel & common framework storage
+/storage/*.key
+/storage/debugbar
+/storage/framework/cache/data
+/storage/framework/sessions
+/storage/framework/views
+/storage/logs
+/public/hot
+/public/storage
+
+# Node
+/node_modules/
+/npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+.pnpm-debug.log
+.pnp.*
+
+# Build outputs
+/dist/
+/build/
+/.next/
+/.nuxt/
+/out/
+
+# OS files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*~
+
+# Logs
+logs/
+*.log
+
+# PHPStorm
+/.idea/
+/*.iml
+
+# Coverage and test reports
+coverage/
+.phpunit/
+
+# Uploaded files / temp
+/storage/uploads/
+/tmp/
+
+# Database
+*.sqlite
+
+# Secrets
+*.pem
+*.key
+
+# Laragon
+/.vagrant/
+/laragon.ini
+
+# Database config
+/config/database.php
+*.sql
+
+# Swagger
+swagger.json
+/swagger/
+
+# End of .gitignore

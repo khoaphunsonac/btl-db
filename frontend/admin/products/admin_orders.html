@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Orders</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet" />
+
+  <link rel="stylesheet" href="../../css/popUp.css">
+  <link rel="stylesheet" href="admin_orders_tab.css">
+  <link rel="stylesheet" href="../../../pagination.css">
+
+  <link rel="stylesheet" href="../fixed-sidebar.css?v=1">
+</head>
+
+<body>
+  <div class="page">
+    <div class="mount-admin-sidebar"></div>
+
+    <div class="page-wrapper">
+      <main>
+        <div class="page-header">
+          <div class="container-xl">
+            <h2 class="page-title">Quản lý Giỏ hàng & Đơn hàng</h2>
+          </div>
+        </div>
+
+        <div class="page-body">
+          <div class="container-xl">
+            <div class="card">
+              <div class="card-header d-flex align-items-center">
+                <h3 class="card-title mb-0">Giỏ hàng & Đơn hàng</h3>
+                <ul class="nav nav-tabs card-header-tabs ms-3" id="ordersTabs" role="tablist">
+                  <li class="nav-item">
+                    <a class="nav-link active" id="tab-cart" data-type="cart" href="#" role="tab">Giỏ hàng</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" id="tab-orders" data-type="orders" href="#" role="tab">Đơn hàng</a>
+                  </li>
+                </ul>
+                <div class="ms-auto d-flex filter-group">
+                  <!-- <input type="text" class="form-control order-search" id="ordersSearch" placeholder="Tìm kiếm..."
+                    style="width:220px;" /> -->
+                  <button id="btnRefresh" class="btn btn-outline-secondary">Làm mới</button>
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-striped table-vcenter">
+                  <thead class="table-light" id="ordersTableHead">
+                    <tr>
+                      <th>Người dùng</th>
+                      <th>Số sản phẩm</th>
+                      <th>Lần cập nhật cuối</th>
+                      <th class="text-end">Thao tác</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ordersTableBody">
+                    <tr>
+                      <td colspan="4" class="text-center py-4 text-muted">Đang tải dữ liệu...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="card-footer">
+                <div id="pagination-container" class="pagination-container" style="display: none;">
+                  <div id="pagination-summary" class="pagination-summary"></div>
+                  <ul id="pagination-controls" class="pagination"></ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/js/tabler.min.js"></script>
+
+  <script src="../sidebar-fix.js?v=2"></script>
+
+  <script type="module" src="../../js/main.js?v=6"></script>
+  <script type="module">
+    import { mountAdminSidebar } from '../../components/AdminSidebar.js';
+    document.addEventListener('DOMContentLoaded', () => {
+      mountAdminSidebar('.mount-admin-sidebar', 'admin-orders');
+    });
+  </script>
+  <script type="module" src="admin_orders.js?v=6"></script>
+</body>
+
+</html>

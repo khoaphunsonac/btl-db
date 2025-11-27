@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chi tiết tin - Admin</title>
+    <!-- Tabler CSS cho Sidebar -->
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet" />
+
+    <!-- Admin Sidebar CSS -->
+    <link rel="stylesheet" href="../admin-sidebar.css?v=102">
+
+    <!-- FINAL FIXED SIDEBAR CSS -->
+    <link rel="stylesheet" href="../fixed-sidebar.css?v=1">
+
+    <style>
+        .page-body {
+            padding: 1.5rem;
+        }
+
+        .post-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .post-meta-item {
+            display: inline-flex;
+            align-items: center;
+            margin-right: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .post-meta-item i {
+            margin-right: 0.5rem;
+        }
+
+        .post-content {
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+
+        .post-content img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .comment-card {
+            border-left: 3px solid #e9ecef;
+        }
+
+        .comment-card:hover {
+            border-left-color: #206bc4;
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <!-- Tabler Sidebar mount (shared layout with index) -->
+        <div class="mount-admin-sidebar"></div>
+
+        <div class="page-wrapper">
+            <div class="page-header">
+                <div class="container-xl">
+                    <h2 class="page-title">Chi tiết bài viết</h2>
+                </div>
+            </div>
+
+            <div class="page-body">
+                <div class="container-xl">
+                    <!-- Post Content -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h3 class="card-title mb-0">Thông tin bài viết</h3>
+                                <span id="statusBadge"></span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <!-- Title -->
+                            <h2 id="postTitle" class="mb-3">Đang tải...</h2>
+                            
+                            <!-- Meta Info -->
+                            <div class="mb-3" id="postMeta">
+                                <div class="post-meta-item">
+                                    <i class="ti ti-user"></i>
+                                    <span id="authorName">-</span>
+                                </div>
+                                <div class="post-meta-item">
+                                    <i class="ti ti-calendar"></i>
+                                    <span id="createdDate">-</span>
+                                </div>
+                                <div class="post-meta-item">
+                                    <i class="ti ti-calendar-event"></i>
+                                    <span id="publishedDate">-</span>
+                                </div>
+                            </div>
+
+                            <!-- Featured Image -->
+                            <div id="postImageContainer" style="display: none;">
+                                <img id="postImage" class="post-image" alt="Post image">
+                            </div>
+
+                            <!-- Excerpt -->
+                            <div id="postExcerpt" class="alert alert-info" style="display: none;"></div>
+
+                            <!-- Content -->
+                            <div id="postContent" class="post-content"></div>
+
+                            <!-- Actions -->
+                            <div class="mt-4 border-top pt-3">
+                                <a id="btnEdit" class="btn btn-primary" href="#">
+                                    <i class="ti ti-edit me-1"></i> Sửa
+                                </a>
+                                <button id="btnDelete" class="btn btn-danger">
+                                    <i class="ti ti-trash me-1"></i> Xoá
+                                </button>
+                                <a class="btn btn-secondary" href="index.html">
+                                    <i class="ti ti-arrow-left me-1"></i> Quay lại
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comments Section -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="ti ti-message me-2"></i>
+                                Bình luận (<span id="commentCount">0</span>)
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="commentsContainer">
+                                <div class="text-center py-4">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Đang tải...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+        <!-- Tabler JS -->
+        <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/js/tabler.min.js"></script>
+        <!-- SIDEBAR FIX SCRIPT -->
+        <script src="../sidebar-fix.js?v=2"></script>
+
+        <!-- AUTO SCHEDULER - Tự động cập nhật scheduled posts -->
+        <script type="module" src="../utils/auto-scheduler.js"></script>
+
+        <script type="module" src="admin_news_detail.js?v=3"></script>
+        <script type="module">
+            import { mountAdminSidebar } from '../../components/AdminSidebar.js';
+            document.addEventListener('DOMContentLoaded', () => {
+                mountAdminSidebar('.mount-admin-sidebar', 'admin-news');
+            });
+        </script>
+</body>
+
+</html>

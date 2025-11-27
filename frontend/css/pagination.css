@@ -1,0 +1,67 @@
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.pagination-summary {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.pagination {
+  display: flex;
+  padding-left: 0;
+  list-style: none;
+  border-radius: 0.25rem;
+  margin: 0;
+}
+
+.page-item {
+  margin: 0 2px;
+}
+
+.page-item.disabled .page-link {
+  color: #adb5bd;
+  pointer-events: none;
+  background-color: #fff;
+  border-color: #dee2e6;
+  opacity: 0.6;
+}
+
+.page-item.active .page-link {
+  z-index: 3;
+  color: #fff;
+  background-color: #206bc4; /* Màu primary của Tabler */
+  border-color: #206bc4;
+}
+
+.page-link {
+  position: relative;
+  display: block;
+  padding: 0.5rem 0.75rem;
+  line-height: 1.25;
+  color: #206bc4;
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+  cursor: pointer;
+  user-select: none;
+}
+
+.page-link:hover {
+  z-index: 2;
+  color: #1a5ca2;
+  text-decoration: none;
+  background-color: #e9ecef;
+  border-color: #dee2e6;
+}
+
+.page-link:focus {
+  z-index: 3;
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(32, 107, 196, 0.25);
+}

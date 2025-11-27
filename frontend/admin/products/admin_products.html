@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Products</title>
+
+    <!-- Tabler CSS cho Sidebar -->
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet" />
+
+    <!-- <link rel="stylesheet" href="../admin.css"> -->
+    <link rel="stylesheet" href="../../css/popUp.css">
+    <link rel="stylesheet" href="./product_popup.css">
+
+    <link rel="stylesheet" href="../fixed-sidebar.css?v=1">
+    <link rel="stylesheet" href="../../../pagination.css">
+
+    <style>
+        .fixed-sidebar {
+            z-index: 1000 !important;
+        }
+
+        .page .page-wrapper {
+            margin-left: 260px !important;
+        }
+
+        .page-wrapper main {
+            width: auto !important;
+            max-width: none !important;
+            position: relative !important;
+        }
+
+        .page-wrapper main {
+            padding: 0 !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <div class="mount-admin-sidebar"></div>
+
+        <div class="page-wrapper">
+            <main>
+                <div class="page-header">
+                    <div class="container-xl">
+                        <h2 class="page-title">Quản lý sản phẩm</h2>
+                    </div>
+                </div>
+
+                <div class="page-body">
+                    <div class="container-xl">
+                        <div class="card">
+                            <div class="card-header d-flex align-items-center">
+                                <h3 class="card-title mb-0">Danh sách sản phẩm</h3>
+                                <div class="ms-auto d-flex filter-group">
+                                    <input type="text" class="form-control product-search" placeholder="Tìm kiếm..."
+                                        style="width: 220px;" />
+                                    <button id="btnRefresh" class="btn btn-outline-secondary" style="margin-left: 10px;margin-right: 10px;">Làm mới</button>
+                                    <button id="btnAdd" class="btn btn-success btn-add-product">Thêm sản phẩm mới</button>
+                                </div>
+                            </div>
+
+                            <div class=" table-responsive">
+                                <table class="table table-striped table-vcenter">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th></th>
+                                            <th>Tên sản phẩm</th>
+                                            <th>Giá</th>
+                                            <th>Giảm giá</th>
+                                            <th>Còn lại</th>
+                                            <th>Kích cỡ</th>
+                                            <th>Màu sắc</th>
+                                            <th>Phân loại</th>
+                                            <th class="text-end">Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="productsTableBody">
+                                        <tr>
+                                            <td colspan="9" class="text-center py-4 text-muted">Đang tải dữ
+                                                liệu...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="pagination-container" class="pagination-container" style="display: none;">
+                                <div id="pagination-summary" class="pagination-summary"></div>
+                                <ul id="pagination-controls" class="pagination"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Tabler JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/js/tabler.min.js"></script>
+
+    <!-- SIDEBAR FIX SCRIPT -->
+    <script src="../sidebar-fix.js?v=2"></script>
+
+    <!-- JS gốc -->
+    <script type="module" src="../../js/main.js?v=6"></script>
+    <script type="module" src="admin_products.js?v=6"></script>
+    <script type="module">
+        import { mountAdminSidebar } from '../../components/AdminSidebar.js';
+        document.addEventListener('DOMContentLoaded', () => {
+            mountAdminSidebar('.mount-admin-sidebar', 'admin-products');
+        });
+    </script>
+</body>
+
+</html>

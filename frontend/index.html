@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BTL-DB Admin Dashboard</title>
+    
+    <!-- Tabler CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
+    
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .welcome-card {
+            max-width: 600px;
+            text-align: center;
+        }
+        .welcome-card h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+        .welcome-card p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+        }
+        .btn-custom {
+            background: white;
+            color: #667eea;
+            font-weight: 600;
+            padding: 1rem 3rem;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            transition: all 0.3s;
+        }
+        .btn-custom:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="welcome-card">
+        <h1>🚀 BTL-DB Admin</h1>
+        <p>Hệ thống quản lý dữ liệu theo mô hình MVC</p>
+        <a href="./admin/index.html" class="btn btn-custom">
+            Vào Admin Panel
+        </a>
+    </div>
+</body>
+</html>

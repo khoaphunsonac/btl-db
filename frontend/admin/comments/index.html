@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Quản lý bình luận - Admin</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="../fixed-sidebar.css?v=1">
+
+    <style>
+        .content-preview {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .rating-stars {
+            color: #ffc107;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <!-- Sidebar -->
+        <div class="mount-admin-sidebar"></div>
+
+        <!-- Main Content -->
+        <div class="page-wrapper">
+            <!-- Page header -->
+            <div class="page-header d-print-none">
+                <div class="container-xl">
+                    <div class="row g-2 align-items-center">
+                        <div class="col">
+                            <h2 class="page-title">Quản lý bình luận</h2>
+                            <div class="text-muted mt-1">Quản lý bình luận từ bài viết và sản phẩm</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page body -->
+            <div class="page-body">
+                <div class="container-xl">
+                    <!-- Statistics Cards -->
+                    <div class="row row-cards mb-3">
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="subheader">Tổng số</div>
+                                    </div>
+                                    <div class="h1 mb-0" id="stat-total">0</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="subheader">Bài viết</div>
+                                    </div>
+                                    <div class="h1 mb-0 text-blue" id="stat-posts">0</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="subheader">Sản phẩm</div>
+                                    </div>
+                                    <div class="h1 mb-0 text-green" id="stat-products">0</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="subheader">Hôm nay</div>
+                                    </div>
+                                    <div class="h1 mb-0 text-yellow" id="stat-today">0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filters -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h3 class="card-title">Bộ lọc nâng cao</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">Từ khóa</label>
+                                    <input type="text" class="form-control" id="searchInput" placeholder="Tìm theo người dùng, nội dung...">
+                                    <small class="text-muted">Tìm kiếm trong tên người dùng và nội dung bình luận</small>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Loại bình luận</label>
+                                    <select class="form-select" id="filterType">
+                                        <option value="">Tất cả</option>
+                                        <option value="post">Bài viết</option>
+                                        <option value="product">Sản phẩm</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Lọc theo ID</label>
+                                    <input type="number" class="form-control" id="filterId" placeholder="Post ID / Product ID">
+                                    <small class="text-muted">Lọc theo ID bài viết hoặc sản phẩm</small>
+                                </div>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label">Từ ngày</label>
+                                    <input type="date" class="form-control" id="filterFromDate">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Đến ngày</label>
+                                    <input type="date" class="form-control" id="filterToDate">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Rating</label>
+                                    <select class="form-select" id="filterRating">
+                                        <option value="">Tất cả</option>
+                                        <option value="5">5 sao</option>
+                                        <option value="4">4 sao</option>
+                                        <option value="3">3 sao</option>
+                                        <option value="2">2 sao</option>
+                                        <option value="1">1 sao</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">&nbsp;</label>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-primary flex-fill" id="btnFilter">
+                                            <i class="ti ti-filter"></i> Lọc
+                                        </button>
+                                        <button class="btn btn-secondary" id="btnReset">
+                                            <i class="ti ti-refresh"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comments Table -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Danh sách bình luận</h3>
+                            <div class="ms-auto">
+                                <div class="btn-group">
+                                    <button class="btn btn-success btn-sm" id="btnExportExcel">
+                                        <i class="ti ti-file-spreadsheet"></i> Xuất Excel
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" id="btnExportPDF">
+                                        <i class="ti ti-file-type-pdf"></i> Xuất PDF
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-vcenter card-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Người dùng</th>
+                                        <th>Loại</th>
+                                        <th>Tham chiếu</th>
+                                        <th>Nội dung</th>
+                                        <th>Rating</th>
+                                        <th>Ngày tạo</th>
+                                        <th class="w-1">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="commentTableBody">
+                                    <tr>
+                                        <td colspan="8" class="text-center py-4">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Đang tải...</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-footer d-flex align-items-center">
+                            <p class="m-0 text-muted">Hiển thị <span id="showingRange">0-0</span> trong tổng số <span id="totalComments">0</span></p>
+                            <ul class="pagination m-0 ms-auto" id="pagination"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- View Detail Modal -->
+    <div class="modal modal-blur fade" id="viewModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Chi tiết bình luận</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <strong>Người dùng:</strong>
+                            <div id="detailUser"></div>
+                        </div>
+                        <div class="col-6">
+                            <strong>Loại:</strong>
+                            <div id="detailType"></div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <strong>Tham chiếu:</strong>
+                            <div id="detailReference"></div>
+                        </div>
+                        <div class="col-6">
+                            <strong>Ngày tạo:</strong>
+                            <div id="detailDate"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Rating:</strong>
+                        <div id="detailRating"></div>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Nội dung:</strong>
+                        <div id="detailContent" class="border rounded p-3"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-danger" id="btnDeleteComment">
+                        <i class="ti ti-trash"></i> Xóa bình luận
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabler JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/js/tabler.min.js"></script>
+    
+    <!-- SIDEBAR FIX SCRIPT -->
+    <script src="../sidebar-fix.js?v=2"></script>
+    
+    <!-- Custom JS -->
+    <script type="module" src="./admin_comments.js"></script>
+    <script type="module">
+      import { mountAdminSidebar } from '../../components/AdminSidebar.js';
+      document.addEventListener('DOMContentLoaded', () => {
+        mountAdminSidebar('.mount-admin-sidebar', 'comments');
+      });
+    </script>
+</body>
+</html>

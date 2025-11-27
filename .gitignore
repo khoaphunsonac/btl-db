@@ -1,0 +1,33 @@
+# Database config (chứa credentials)
+backend/config/database.php
+
+# Logs
+*.log
+backend/error.log
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Node modules (nếu có)
+node_modules/
+
+# Composer vendor (nếu có)
+vendor/
+
+# Environment files
+.env
+.env.local

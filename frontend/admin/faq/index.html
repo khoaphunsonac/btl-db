@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin FAQ</title>
+    
+    <!-- Tabler CSS cho Sidebar -->
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet"/>
+    
+    <link rel="stylesheet" href="../admin.css">
+    
+    <!-- FINAL FIXED SIDEBAR CSS -->
+    <link rel="stylesheet" href="../fixed-sidebar.css?v=1">
+    
+    <style>
+        /* Giữ nguyên style cũ */
+        .admin-content {
+            padding: 1.5rem;
+        }
+        
+        .faq-list {
+            margin-top: 1.5rem;
+        }
+        
+        .faq-item {
+            border: 1px solid #e2e8f0;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 6px;
+            background: white;
+        }
+        
+        .faq-item h3 {
+            margin-bottom: 0.5rem;
+            color: #1e293b;
+        }
+        
+        .faq-item p {
+            color: #64748b;
+            margin-bottom: 1rem;
+        }
+        
+        .btn-add {
+            background: #2563eb;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+        
+        .btn-edit, .btn-delete {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 0.5rem;
+        }
+        
+        .btn-edit {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <!-- Tabler Sidebar -->
+        <div class="mount-admin-sidebar"></div>
+
+        <!-- Nội dung chính - GIỮ NGUYÊN GIAO DIỆN CŨ -->
+        <div class="page-wrapper">
+            <div class="mount-header"></div>
+
+            <main>
+                <h1>Quản lý FAQ</h1>
+                <div class="admin-content">
+                    <h2>Danh sách câu hỏi</h2>
+                    <button class="btn-add">Thêm câu hỏi mới</button>
+                    <div class="faq-list">
+                        <div class="faq-item">
+                            <h3>Website này được tạo ra để làm gì?</h3>
+                            <p>Website này là bài tập lớn môn Web Development của sinh viên Lê Khoa...</p>
+                            <button class="btn-edit">Sửa</button>
+                            <button class="btn-delete">Xóa</button>
+                        </div>
+                        <div class="faq-item">
+                            <h3>Làm thế nào để liên hệ với tác giả?</h3>
+                            <p>Bạn có thể liên hệ qua trang Contact hoặc email...</p>
+                            <button class="btn-edit">Sửa</button>
+                            <button class="btn-delete">Xóa</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <div class="mount-footer"></div>
+        </div>
+    </div>
+
+    <!-- Tabler JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/js/tabler.min.js"></script>
+    
+    <!-- SIDEBAR FIX SCRIPT -->
+    <script src="../sidebar-fix.js?v=2"></script>
+    
+    <!-- JS gốc -->
+    <script type="module" src="../../js/main.js?v=6"></script>
+    <script type="module" src="admin_faq.js?v=6"></script>
+    <script type="module">
+      import { mountAdminSidebar } from '../../components/AdminSidebar.js';
+      document.addEventListener('DOMContentLoaded', () => {
+        mountAdminSidebar('.mount-admin-sidebar', 'admin-faq');
+      });
+    </script>
+</body>
+</html>

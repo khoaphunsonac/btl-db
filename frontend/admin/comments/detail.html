@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chi tiết bình luận - Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="../fixed-sidebar.css?v=1">
+
+    <style>
+        /* Giữ nguyên style cũ */
+        .table .btn {
+            padding: 0.35rem 0.6rem;
+        }
+
+        .filter-group {
+            gap: .5rem;
+            align-items: center;
+        }
+
+        .page-body {
+            padding: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <!-- Tabler Sidebar mount (shared layout with index) -->
+        <div class="mount-admin-sidebar"></div>
+
+        <div class="page-wrapper">
+      <div class="page-header">
+        <div class="container-xl">
+          <h2 class="page-title">Chi tiết bình luận</h2>
+        </div>
+      </div>
+
+      <div class="page-body">
+        <div class="container-xl">
+          <div class="card">
+            <div class="card-body">
+              <h3 id="commentUser">Đang tải...</h3>
+              <p class="text-muted" id="commentMeta"></p>
+              <div id="commentContent" class="mb-3"></div>
+              <p><strong>Rating:</strong> <span id="commentRating">-</span></p>
+
+              <div class="mt-3">
+                <button id="btnDelete" class="btn btn-danger">Xoá</button>
+                <a class="btn btn-secondary" href="index.html">Quay lại</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Tabler JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/js/tabler.min.js"></script>
+  <!-- SIDEBAR FIX SCRIPT -->
+  <script src="../sidebar-fix.js?v=2"></script>
+
+  <script type="module" src="admin_comments_detail.js"></script>
+  <script type="module">
+    import { mountAdminSidebar } from '../../components/AdminSidebar.js';
+    document.addEventListener('DOMContentLoaded', () => {
+      mountAdminSidebar('.mount-admin-sidebar', 'comments');
+    });
+  </script>
+</body>
+</html>

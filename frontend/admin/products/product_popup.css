@@ -1,0 +1,121 @@
+/* ==== Popup Container ==== */
+.popup-card {
+    background: #fff;
+    padding: 28px 30px;
+    border-radius: 14px;
+    width: 720px;
+    max-width: 90vw;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    font-family: "Inter", system-ui, sans-serif;
+}
+
+.popup-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 18px;
+    color: #111827;
+    text-align: center;
+}
+
+/* ==== Form Layout ==== */
+.product-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 18px;
+}
+
+.form-grid label {
+    display: flex;
+    flex-direction: column;
+    font-weight: 500;
+    color: #374151;
+    font-size: 15px;
+}
+
+.form-grid input,
+.form-grid select,
+.form-grid textarea {
+    margin-top: 6px;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-grid input:focus,
+.form-grid select:focus,
+.form-grid textarea:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    outline: none;
+}
+
+.form-grid textarea {
+    resize: vertical;
+    min-height: 70px;
+}
+
+/* ==== Image Preview ==== */
+.image-preview {
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.image-preview img {
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+}
+
+/* ==== Actions ==== */
+.popup-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.btn-save,
+.btn-cancel {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: background 0.25s, transform 0.1s;
+}
+
+.btn-save {
+    background-color: #2563eb;
+    color: #fff;
+}
+
+.btn-save:hover {
+    background-color: #1e40af;
+}
+
+.btn-cancel {
+    background-color: #f3f4f6;
+    color: #333;
+}
+
+.btn-cancel:hover {
+    background-color: #e5e7eb;
+}
+
+.btn-save:active,
+.btn-cancel:active {
+    transform: scale(0.97);
+}
