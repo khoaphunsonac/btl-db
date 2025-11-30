@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mã giảm giá - NEMTHUNG Admin</title>
+
+    <!-- Tabler CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet"/>
+
+    <!-- FIXED SIDEBAR -->
+    <link rel="stylesheet" href="../fixed-sidebar.css?v=1">
+</head>
+
+<body>
+<div class="page">
+    <!-- Sidebar -->
+    <div class="mount-admin-sidebar"></div>
+
+    <!-- Page content -->
+    <div class="page-wrapper">
+        <!-- Page header -->
+        <div class="page-header d-print-none">
+            <div class="container-xl">
+                <div class="row g-2 align-items-center">
+                    <div class="col">
+                        <h2 class="page-title">Mã giảm giá</h2>
+                    </div>
+
+                    <div class="col-auto ms-auto">
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-add-discount">
+                            <i class="ti ti-plus"></i> Thêm mã giảm giá
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page body -->
+        <div class="page-body">
+            <div class="container-xl">
+                <div class="card">
+                    <div class="card-body border-bottom py-3">
+                        <div class="d-flex">
+                            <div class="text-muted">
+                                Hiển thị
+                                <div class="mx-2 d-inline-block">
+                                    <input type="text" class="form-control form-control-sm" value="10" size="3">
+                                </div>
+                                bản ghi
+                            </div>
+                            <div class="ms-auto text-muted">
+                                Tìm kiếm:
+                                <input type="text" class="form-control form-control-sm d-inline-block w-20" placeholder="Tìm...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table card-table table-vcenter text-nowrap">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Giá trị</th>
+                                    <th>Điều kiện</th>
+                                    <th>Ngày bắt đầu</th>
+                                    <th>Ngày kết thúc</th>
+                                    <th>Loại</th>
+                                    <th class="w-1"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="discount-table-body">
+                                <!-- DATA WILL LOAD USING JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="card-footer d-flex align-items-center">
+                        <p class="m-0 text-muted">Hiển thị <span id="count-show">0</span> / <span id="total-records">0</span> mã giảm giá</p>
+                        <ul class="pagination m-0 ms-auto" id="pagination"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal: Add Discount -->
+<div class="modal modal-blur fade" id="modal-add-discount" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm mã giảm giá</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <div class="row mb-3">
+                    <div class="col-lg-6">
+                        <label class="form-label">Giá trị (value)</label>
+                        <input id="add-discount-value" type="number" class="form-control" placeholder="VD: 20">
+                    </div>
+                    <div class="col-lg-6">
+                        <label class="form-label">Điều kiện (condition)</label>
+                        <input id="add-discount-condition" type="text" class="form-control" placeholder="VD: Đơn hàng từ 3000000">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-lg-6">
+                        <label class="form-label">Ngày bắt đầu</label>
+                        <input id="add-discount-start" type="datetime-local" class="form-control">
+                    </div>
+                    <div class="col-lg-6">
+                        <label class="form-label">Ngày kết thúc</label>
+                        <input id="add-discount-end" type="datetime-local" class="form-control">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Loại giảm giá (type)</label>
+                    <select id="add-discount-type" class="form-select">
+                        <option value="Phần trăm">Phần trăm</option>
+                        <option value="Giá trị">Giá trị</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-link" data-bs-dismiss="modal">Hủy</button>
+                <button class="btn btn-primary" onclick="handleAddDiscount()">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- JS UI -->
+    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/js/tabler.min.js"></script> 
+
+    <script type="module">
+        import { mountAdminSidebar } from '../../components/AdminSidebar.js';
+        document.addEventListener('DOMContentLoaded', () => {
+            mountAdminSidebar('.mount-admin-sidebar', 'admin-discounts');
+        });
+    </script>
+
+    <!-- Customer Management Script -->
+    <script type="module" src="./admin_discounts.js"></script>
+
+</body>
+</html>

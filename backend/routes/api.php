@@ -168,25 +168,49 @@ function handleRoute($db) {
                 // ============ DISCOUNT ROUTES ============
                 case 'discounts':
                     $controller = new DiscountController($pdo);
-                    if ($method === 'GET' && !$id) {
-                        $controller->index();
-                    } elseif ($method === 'GET' && $id) {
-                        $controller->show($id);
-                    } elseif ($method === 'POST' && $id === 'validate') {
+
+                    // POST /api/discounts/validate  (Không có ID)
+                    if ($method === 'POST' && $id === 'validate') {
                         $controller->validate();
-                    } elseif ($method === 'POST' && !$id) {
+                    }
+
+                    // GET /api/discounts
+                    elseif ($method === 'GET' && !$id) {
+                        $controller->index();
+                    }
+
+                    // GET /api/discounts/{id}
+                    elseif ($method === 'GET' && $id && $id !== 'validate') {
+                        $controller->show($id);
+                    }
+
+                    // POST /api/discounts
+                    elseif ($method === 'POST' && !$id) {
                         $controller->store();
-                    } elseif ($method === 'PUT' && $id && $action === 'toggle') {
+                    }
+
+                    // PUT /api/discounts/{id}/toggle
+                    elseif ($method === 'PUT' && $id && $action === 'toggle') {
                         $controller->toggle($id);
-                    } elseif ($method === 'PUT' && $id) {
+                    }
+
+                    // PUT /api/discounts/{id}
+                    elseif ($method === 'PUT' && $id) {
                         $controller->update($id);
-                    } elseif ($method === 'DELETE' && $id) {
+                    }
+
+                    // DELETE /api/discounts/{id}
+                    elseif ($method === 'DELETE' && $id) {
                         $controller->delete($id);
-                    } else {
+                    }
+
+                    else {
                         http_response_code(404);
                         echo json_encode(['success' => false, 'message' => 'Endpoint not found']);
                     }
                     break;
+
+
                 
                 // ============ RATING ROUTES ============
                 case 'ratings':
