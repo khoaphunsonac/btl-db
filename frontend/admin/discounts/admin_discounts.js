@@ -217,11 +217,6 @@ async function handleAddDiscount() {
     const time_end = document.getElementById("add-discount-end").value;
     const type = document.getElementById("add-discount-type").value;
 
-    if (!value || !condition || !time_start || !time_end) {
-        showError('Vui lòng điền đầy đủ thông tin');
-        return;
-    }
-
     try {
         const response = await apiClient.post('discounts', {
             value,
@@ -242,10 +237,20 @@ async function handleAddDiscount() {
         } else {
             showError(response.message || 'Không thể thêm mã giảm giá');
         }
-    } catch (error) {
-        console.error('Error adding discount:', error);
-        showError('Lỗi khi thêm mã giảm giá');
+    } catch (err) {
+        console.error(err);
+    
+        const errors = err.data?.errors;
+    
+        if (errors) {
+            showError(
+                Object.values(errors).join("<br>")
+            );
+        } else {
+            showError(err.message);
+        }
     }
+    
 }
 
 /**
