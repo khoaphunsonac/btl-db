@@ -169,29 +169,19 @@ function handleRoute($db) {
                 case 'discounts':
                     $controller = new DiscountController($pdo);
 
-                    // POST /api/discounts/validate  (Không có ID)
-                    if ($method === 'POST' && $id === 'validate') {
-                        $controller->validate();
-                    }
-
                     // GET /api/discounts
-                    elseif ($method === 'GET' && !$id) {
+                    if ($method === 'GET' && !$id) {
                         $controller->index();
                     }
 
                     // GET /api/discounts/{id}
-                    elseif ($method === 'GET' && $id && $id !== 'validate') {
+                    elseif ($method === 'GET' && $id) {
                         $controller->show($id);
                     }
 
                     // POST /api/discounts
                     elseif ($method === 'POST' && !$id) {
                         $controller->store();
-                    }
-
-                    // PUT /api/discounts/{id}/toggle
-                    elseif ($method === 'PUT' && $id && $action === 'toggle') {
-                        $controller->toggle($id);
                     }
 
                     // PUT /api/discounts/{id}

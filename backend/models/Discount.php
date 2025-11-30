@@ -1,8 +1,7 @@
 <?php
 require_once __DIR__ . '/BaseModel.php';
 
-class Discount extends BaseModel
-{
+class Discount extends BaseModel {
     protected $table = 'Discount';
 
     /**
@@ -115,8 +114,7 @@ class Discount extends BaseModel
     /**
      * Get discount by ID
      */
-    public function getById($id)
-    {
+    public function getById($id) {
         $sql = "SELECT * FROM Discount WHERE id = :id";
 
         $stmt = $this->pdo->prepare($sql);
@@ -129,8 +127,7 @@ class Discount extends BaseModel
     /**
      * Create discount
      */
-    public function create($data)
-    {
+    public function create($data) {
         $sql = "INSERT INTO Discount (value, `condition`, time_start, time_end, type)
                 VALUES (:value, :condition, :time_start, :time_end, :type)";
 
@@ -148,8 +145,7 @@ class Discount extends BaseModel
     /**
      * Update discount
      */
-    public function update($id, $data)
-    {
+    public function update($id, $data) {
         $sql = "UPDATE Discount 
                 SET value = :value,
                     `condition` = :condition,
@@ -173,8 +169,7 @@ class Discount extends BaseModel
     /**
      * Delete discount
      */
-    public function delete($id)
-    {
+    public function delete($id) {
         $sql = "DELETE FROM Discount WHERE id = :id";
 
         $stmt = $this->pdo->prepare($sql);
