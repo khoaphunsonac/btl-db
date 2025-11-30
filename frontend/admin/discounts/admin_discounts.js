@@ -194,12 +194,11 @@ window.changePage = function(page) {
  * Add discount
  */
 async function handleAddDiscount() {
-    const modal = document.getElementById('modal-add-discount');
-    const value = modal.querySelector('input[placeholder*="VD: 20"]').value.trim();
-    const condition = modal.querySelector('input[placeholder*="VD: 200000"]').value.trim();
-    const time_start = modal.querySelector('input[type="datetime-local"]:first-of-type').value;
-    const time_end = modal.querySelector('input[type="datetime-local"]:last-of-type').value;
-    const type = modal.querySelector('select').value;
+    const value = document.getElementById("add-discount-value").value.trim();
+    const condition = document.getElementById("add-discount-condition").value.trim();
+    const time_start = document.getElementById("add-discount-start").value;
+    const time_end = document.getElementById("add-discount-end").value;
+    const type = document.getElementById("add-discount-type").value;
 
     if (!value || !condition || !time_start || !time_end) {
         showError('Vui lòng điền đầy đủ thông tin');
@@ -208,13 +207,21 @@ async function handleAddDiscount() {
 
     try {
         const response = await apiClient.post('discounts', {
-            value, condition, time_start, time_end, type
+            value,
+            condition,
+            time_start,
+            time_end,
+            type
         });
 
         if (response.success) {
             showSuccess('Đã thêm mã giảm giá thành công');
             loadDiscounts();
+
+            // đóng modal
+            const modal = document.getElementById('modal-add-discount');
             modal.querySelector('.btn-close').click();
+
         } else {
             showError(response.message || 'Không thể thêm mã giảm giá');
         }

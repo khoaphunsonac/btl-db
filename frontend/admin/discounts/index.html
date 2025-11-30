@@ -94,49 +94,50 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Thêm mã giảm giá</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
+
             <div class="modal-body">
 
                 <div class="row mb-3">
                     <div class="col-lg-6">
                         <label class="form-label">Giá trị (value)</label>
-                        <input type="number" class="form-control" placeholder="VD: 20">
+                        <input id="add-discount-value" type="number" class="form-control" placeholder="VD: 20">
                     </div>
                     <div class="col-lg-6">
                         <label class="form-label">Điều kiện (condition)</label>
-                        <input type="number" class="form-control" placeholder="VD: 200000">
+                        <input id="add-discount-condition" type="text" class="form-control" placeholder="VD: Đơn hàng từ 3000000">
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-lg-6">
                         <label class="form-label">Ngày bắt đầu</label>
-                        <input type="datetime-local" class="form-control">
+                        <input id="add-discount-start" type="datetime-local" class="form-control">
                     </div>
                     <div class="col-lg-6">
                         <label class="form-label">Ngày kết thúc</label>
-                        <input type="datetime-local" class="form-control">
+                        <input id="add-discount-end" type="datetime-local" class="form-control">
                     </div>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">Loại giảm giá (type)</label>
-                    <select class="form-select">
+                    <select id="add-discount-type" class="form-select">
                         <option value="Phần trăm">Phần trăm</option>
                         <option value="Giá trị">Giá trị</option>
                     </select>
                 </div>
+
             </div>
 
             <div class="modal-footer">
                 <button class="btn btn-link" data-bs-dismiss="modal">Hủy</button>
-                <button class="btn btn-primary">Lưu</button>
+                <button class="btn btn-primary" onclick="handleAddDiscount()">Lưu</button>
             </div>
         </div>
     </div>
 </div>
-
 
     <!-- JS UI -->
     <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/js/tabler.min.js"></script> 
