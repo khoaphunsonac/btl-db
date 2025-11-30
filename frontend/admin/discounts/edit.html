@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Thêm/Chỉnh sửa mã giảm giá - NEMTHUNG Admin</title>
+
+  <!-- Tabler CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet"/>
+
+  <link rel="stylesheet" href="../fixed-sidebar.css?v=1">
+</head>
+<body>
+<div class="page">
+  <div class="mount-admin-sidebar"></div>
+
+  <div class="page-wrapper">
+    <div class="page-header d-print-none">
+      <div class="container-xl">
+        <div class="row g-2 align-items-center">
+          <div class="col">
+            <h2 class="page-title" id="pageTitle">Thêm mã giảm giá mới</h2>
+            <div class="text-muted mt-1">Điền thông tin mã giảm giá</div>
+          </div>
+          <div class="col-auto">
+            <button class="btn btn-outline-secondary" onclick="window.location.href='./index.html'">
+              <i class="ti ti-arrow-left"></i> Quay lại
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <div class="container-xl">
+        <form id="discountForm" class="needs-validation" novalidate>
+          <div class="row">
+            <!-- Main -->
+            <div class="col-lg-8">
+              <div class="card mb-3">
+                <div class="card-header"><h3 class="card-title">Chi tiết mã giảm giá</h3></div>
+                <div class="card-body">
+                  <div class="row g-3">
+
+                    <div class="col-md-6">
+                      <label class="form-label required">Giá trị (value)</label>
+                      <input type="number" class="form-control" id="value" name="value" required>
+                      <div class="invalid-feedback">Vui lòng nhập giá trị (số)</div>
+                      <small class="form-hint">Nếu type = "Phần trăm" nhập 10 nghĩa là 10% — nếu "Giá trị" nhập 200000 (VNĐ)</small>
+                    </div>
+
+                    <div class="col-md-6">
+                      <label class="form-label required">Loại (type)</label>
+                      <select class="form-select" id="type" name="type" required>
+                        <option value="">-- Chọn loại --</option>
+                        <option value="Phần trăm">Phần trăm</option>
+                        <option value="Giá trị">Giá trị</option>
+                      </select>
+                      <div class="invalid-feedback">Chọn loại giảm giá</div>
+                    </div>
+
+                    <div class="col-12">
+                      <label class="form-label required">Điều kiện (condition)</label>
+                      <input type="text" class="form-control" id="condition" name="condition" required>
+                      <div class="invalid-feedback">Vui lòng nhập điều kiện (ví dụ: Đơn hàng từ 1.000.000đ)</div>
+                    </div>
+
+                    <div class="col-md-6">
+                      <label class="form-label required">Ngày bắt đầu</label>
+                      <input type="datetime-local" class="form-control" id="time_start" name="time_start" required>
+                      <div class="invalid-feedback">Chọn thời gian bắt đầu</div>
+                    </div>
+
+                    <div class="col-md-6">
+                      <label class="form-label required">Ngày kết thúc</label>
+                      <input type="datetime-local" class="form-control" id="time_end" name="time_end" required>
+                      <div class="invalid-feedback">Chọn thời gian kết thúc</div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+              <div class="card mb-3">
+                <div class="card-header"><h3 class="card-title">Trạng thái / Hành động</h3></div>
+                <div class="card-body">
+                  <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary" id="btnSubmit">
+                      <i class="ti ti-device-floppy"></i> Lưu
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="window.location.href='./index.html'">
+                      <i class="ti ti-x"></i> Hủy
+                    </button>
+                    <button type="button" class="btn btn-outline-danger" id="btnDelete" style="display:none;">
+                      <i class="ti ti-trash"></i> Xóa mã giảm giá
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card" id="infoCard" style="display:none;">
+                <div class="card-header"><h3 class="card-title">Thông tin</h3></div>
+                <div class="card-body">
+                  <div class="mb-2">
+                    <small class="text-muted">ID:</small>
+                    <div id="infoId">-</div>
+                  </div>
+                  <div class="mb-2">
+                    <small class="text-muted">Ngày tạo:</small>
+                    <div id="createdAt">-</div>
+                  </div>
+                  <div class="mb-2">
+                    <small class="text-muted">Cập nhật lần cuối:</small>
+                    <div id="updatedAt">-</div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Tabler JS -->
+<script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/js/tabler.min.js"></script>
+
+<!-- Load AdminSidebar -->
+<script type="module">
+  import { mountAdminSidebar } from '../../components/AdminSidebar.js';
+  document.addEventListener('DOMContentLoaded', () => {
+    mountAdminSidebar('.mount-admin-sidebar', 'admin-discounts');
+  });
+</script>
+
+<!-- Page Script -->
+<script type="module" src="./admin_discount_edit.js"></script>
+</body>
+</html>
