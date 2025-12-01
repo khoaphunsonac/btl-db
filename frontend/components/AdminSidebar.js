@@ -27,7 +27,7 @@ export function AdminSidebar({ current = '' } = {}) {
       href: '../products/variants.html', 
       key: 'admin-variants', 
       label: 'Biến thể & Thuộc tính', 
-      icon: 'ti ti-layers' 
+      icon: 'ti ti-stack-2' 
     },
     {
       type: 'section',
