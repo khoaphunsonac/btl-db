@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API Connection</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border: 1px solid #444;
+        }
+        .success { background: #0e4429; border-color: #2ea043; }
+        .error { background: #5a1e1e; border-color: #da3633; }
+        .info { background: #1e3a5a; border-color: #3b82f6; }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            background: #3b82f6;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover { background: #2563eb; }
+        pre { 
+            background: #2d2d2d; 
+            padding: 15px; 
+            border-radius: 4px; 
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        h2 { color: #3b82f6; }
+    </style>
+</head>
+<body>
+    <h1>🔧 API Connection Test</h1>
+    
+    <div>
+        <button onclick="testBackend()">Test Backend</button>
+        <button onclick="testLogin()">Test Login Endpoint</button>
+        <button onclick="testCORS()">Test CORS</button>
+        <button onclick="clearResults()">Clear</button>
+    </div>
+    
+    <div id="results"></div>
+
+    <script>
+        const API_URL = 'http://localhost/btl-db/backend';
+        const resultsDiv = document.getElementById('results');
+        
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${message}`;
+            resultsDiv.insertBefore(div, resultsDiv.firstChild);
+        }
+        
+        function logJSON(obj) {
+            const pre = document.createElement('pre');
+            pre.textContent = JSON.stringify(obj, null, 2);
+            resultsDiv.insertBefore(pre, resultsDiv.firstChild);
+        }
+        
+        function clearResults() {
+            resultsDiv.innerHTML = '';
+        }
+        
+        async function testBackend() {
+            log('Testing backend connection...', 'info');
+            try {
+                const response = await fetch(`${API_URL}/test.php`);
+                log(`Status: ${response.status} ${response.statusText}`, response.ok ? 'success' : 'error');
+                const data = await response.json();
+                logJSON(data);
+            } catch (error) {
+                log(`Error: ${error.message}`, 'error');
+                logJSON({ error: error.toString() });
+            }
+        }
+        
+        async function testLogin() {
+            log('Testing login endpoint...', 'info');
+            try {
+                const response = await fetch(`${API_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'admin1@nemthung.com',
+                        password: '123456'
+                    })
+                });
+                
+                log(`Status: ${response.status} ${response.statusText}`, response.ok ? 'success' : 'error');
+                
+                const contentType = response.headers.get('content-type');
+                log(`Content-Type: ${contentType}`, 'info');
+                
+                const text = await response.text();
+                try {
+                    const data = JSON.parse(text);
+                    logJSON(data);
+                } catch (e) {
+                    log('Response is not JSON:', 'error');
+                    logJSON({ raw_response: text.substring(0, 500) });
+                }
+            } catch (error) {
+                log(`Error: ${error.message}`, 'error');
+                logJSON({ error: error.toString() });
+            }
+        }
+        
+        async function testCORS() {
+            log('Testing CORS headers...', 'info');
+            try {
+                const response = await fetch(`${API_URL}/test.php`, {
+                    method: 'OPTIONS'
+                });
+                
+                log(`Status: ${response.status} ${response.statusText}`, response.ok ? 'success' : 'error');
+                
+                const headers = {};
+                for (const [key, value] of response.headers.entries()) {
+                    headers[key] = value;
+                }
+                logJSON({ headers });
+            } catch (error) {
+                log(`Error: ${error.message}`, 'error');
+                logJSON({ error: error.toString() });
+            }
+        }
+        
+        // Auto test on load
+        window.addEventListener('load', () => {
+            log('Page loaded. Click buttons to test API.', 'info');
+        });
+    </script>
+</body>
+</html>

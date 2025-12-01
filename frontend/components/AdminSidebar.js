@@ -137,6 +137,52 @@ export function AdminSidebar({ current = '' } = {}) {
     })
     .join('');
 
+  // Get user info from localStorage
+  let userInfoHtml = '';
+  try {
+    const userStr = localStorage.getItem('admin_user');
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      const roleColors = {
+        'admin': 'bg-red',
+        'staff': 'bg-blue',
+        'customer': 'bg-green'
+      };
+      const roleLabels = {
+        'admin': 'Quản trị viên',
+        'staff': 'Nhân viên',
+        'customer': 'Khách hàng'
+      };
+      
+      userInfoHtml = `
+        <div class="nav-item px-3 py-3 border-top border-bottom" style="background: rgba(255,255,255,0.05);">
+          <div class="d-flex align-items-center mb-2">
+            <div class="avatar avatar-sm rounded-circle me-2" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600;">
+              ${user.name ? user.name.charAt(0).toUpperCase() : 'A'}
+            </div>
+            <div class="flex-fill" style="min-width: 0;">
+              <div class="text-white fw-bold text-truncate" style="font-size: 0.875rem;">${user.name || 'Admin'}</div>
+              <div class="text-muted small text-truncate">${user.email || ''}</div>
+            </div>
+          </div>
+          <div class="d-flex gap-2 align-items-center">
+            <span class="badge ${roleColors[user.role] || 'bg-secondary'} flex-fill">
+              <i class="ti ti-shield me-1"></i>${roleLabels[user.role] || user.role}
+            </span>
+            <button class="btn btn-sm btn-ghost-light" onclick="window.location.href='./settings/index.html'" title="Thông tin tài khoản">
+              <i class="ti ti-user-circle"></i>
+            </button>
+            <button class="btn btn-sm btn-ghost-danger" onclick="logoutAdmin()" title="Đăng xuất">
+              <i class="ti ti-logout"></i>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+  } catch (error) {
+    console.error('Error loading user info:', error);
+  }
+
   return `
     <aside class="navbar navbar-vertical navbar-expand-lg navbar-dark fixed-sidebar">
       <div class="container-fluid">
@@ -150,6 +196,7 @@ export function AdminSidebar({ current = '' } = {}) {
           </a>
         </h1>
         <div class="collapse navbar-collapse" id="sidebar-menu">
+          ${userInfoHtml}
           <ul class="navbar-nav pt-lg-3">
             ${links}
           </ul>
@@ -200,5 +247,33 @@ async function loadBadgeCounts() {
 // Refresh badge counts every 30 seconds
 setInterval(loadBadgeCounts, 30000);
 
-
-
+/**
+ * Logout function for admin
+ */
+window.logoutAdmin = async function() {
+  if (!confirm('Bạn có chắc chắn muốn đăng xuất?')) {
+    return;
+  }
+  
+  try {
+    // Call logout API
+    const API_URL = window.ENV?.API_URL || 'http://localhost/btl-db/backend';
+    await fetch(`${API_URL}/api/auth/logout`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('admin_token')}`
+      }
+    });
+  } catch (error) {
+    console.error('Logout API error:', error);
+  }
+  
+  // Clear local storage
+  localStorage.removeItem('admin_user');
+  localStorage.removeItem('admin_token');
+  localStorage.removeItem('admin_remember');
+  
+  // Redirect to login
+  window.location.href = './login.html';
+};

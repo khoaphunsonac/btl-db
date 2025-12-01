@@ -1,5 +1,24 @@
 # backend/.htaccess
-RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ index.php [QSA,L]
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /btl-db/backend/
+    
+    # Allow access to index.php
+    RewriteRule ^index\.php$ - [L]
+    
+    # Route everything else to index.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ index.php [QSA,L]
+</IfModule>
+
+# Allow from all
+<IfModule mod_authz_core.c>
+    Require all granted
+</IfModule>
+
+# For Apache 2.2
+<IfModule !mod_authz_core.c>
+    Order allow,deny
+    Allow from all
+</IfModule>

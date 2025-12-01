@@ -145,13 +145,40 @@ class User extends BaseModel
     }
     
     /**
+     * Check if email exists
+     */
+    public function emailExists($email)
+    {
+        $sql = "SELECT COUNT(*) as count FROM {$this->table} WHERE email = :email";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':email', $email);
+        $stmt->execute();
+        
+        $result = $stmt->fetch();
+        return $result['count'] > 0;
+    }
+    
+    /**
      * Get user by email
      */
     public function getByEmail($email)
     {
-        $sql = "SELECT ua.*, u.fname, u.lname, u.address, u.phone
+        $sql = "SELECT 
+                    ua.*,
+                    u.fname,
+                    u.lname,
+                    u.address,
+                    u.phone,
+                    CASE 
+                        WHEN a.id IS NOT NULL THEN 'admin'
+                        WHEN c.id IS NOT NULL THEN 'customer'
+                        ELSE 'customer'
+                    END as role,
+                    a.role as admin_role
                 FROM {$this->table} ua
                 LEFT JOIN User u ON ua.id = u.account_id
+                LEFT JOIN Admin a ON ua.id = a.id
+                LEFT JOIN Customer c ON ua.id = c.id
                 WHERE ua.email = :email";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue(':email', $email);
@@ -201,6 +228,18 @@ class User extends BaseModel
         $sql = "UPDATE {$this->table} SET status = :status WHERE id = :id";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue(':status', $status);
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        
+        return $stmt->execute();
+    }
+    
+    /**
+     * Update last login timestamp
+     */
+    public function updateLastLogin($id)
+    {
+        $sql = "UPDATE {$this->table} SET last_login = NOW() WHERE id = :id";
+        $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);
         
         return $stmt->execute();

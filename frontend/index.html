@@ -3,55 +3,377 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BTL-DB Admin Dashboard</title>
+    <title>Đăng nhập - NEMTHUNG</title>
     
     <!-- Tabler CSS -->
     <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet"/>
     
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
-        .welcome-card {
-            max-width: 600px;
-            text-align: center;
+        
+        .container {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
         }
-        .welcome-card h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            color: #fff;
-        }
-        .welcome-card p {
-            font-size: 1.2rem;
-            color: rgba(255, 255, 255, 0.9);
-            margin-bottom: 2rem;
-        }
-        .btn-custom {
+        
+        .login-card {
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border-radius: 12px;
             background: white;
+        }
+        
+        .card-body {
+            padding: 3rem !important;
+        }
+        
+        .login-logo {
+            font-size: 3rem;
             color: #667eea;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .login-title {
+            text-align: center;
             font-weight: 600;
-            padding: 1rem 3rem;
-            font-size: 1.1rem;
-            border-radius: 50px;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            font-size: 1.75rem;
+        }
+        
+        .login-subtitle {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+        
+        .form-label {
+            font-weight: 500;
+            color: #334155;
+            margin-bottom: 0.5rem;
+        }
+        
+        .input-group {
+            margin-bottom: 0 !important;
+        }
+        
+        .input-group-text {
+            background: #f8fafc;
+            border-right: none;
+            color: #64748b;
+        }
+        
+        .form-control {
+            border-left: none;
+        }
+        
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.1);
+        }
+        
+        .btn-login {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem;
+            font-size: 1rem;
             transition: all 0.3s;
         }
-        .btn-custom:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        
+        .btn-login:hover {
+            opacity: 0.9;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-login:disabled {
+            opacity: 0.6;
+            transform: none;
+        }
+        
+        .alert {
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .divider span {
+            padding: 0 1rem;
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+        
+        .form-check-label {
+            color: #475569;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 576px) {
+            .card-body {
+                padding: 2rem !important;
+            }
+            
+            .login-title {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="welcome-card">
-        <h1>🚀 BTL-DB Admin</h1>
-        <p>Hệ thống quản lý dữ liệu theo mô hình MVC</p>
-        <a href="./admin/index.html" class="btn btn-custom">
-            Vào Admin Panel
-        </a>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <div class="card login-card">
+                    <div class="card-body p-5">
+                        <div class="login-logo">
+                            <i class="ti ti-package"></i>
+                        </div>
+                        <h2 class="login-title">Đăng nhập</h2>
+                        <p class="login-subtitle">NEMTHUNG E-commerce</p>
+                        
+                        <div id="alert-container"></div>
+                        
+                        <form id="loginForm">
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="ti ti-mail"></i>
+                                    </span>
+                                    <input type="email" class="form-control" id="email" placeholder="example@nemthung.com" required>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Mật khẩu</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="ti ti-lock"></i>
+                                    </span>
+                                    <input type="password" class="form-control" id="password" placeholder="••••••••" required>
+                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                        <i class="ti ti-eye" id="eyeIcon"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="rememberMe">
+                                    <span class="form-check-label">Ghi nhớ đăng nhập</span>
+                                </label>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-login w-100 mb-3" id="btnLogin">
+                                <i class="ti ti-login me-2"></i>
+                                Đăng nhập
+                            </button>
+                            
+                            <div class="text-center">
+                                <a href="#" class="text-muted text-decoration-none small">Quên mật khẩu?</a>
+                            </div>
+                            
+                            <div class="divider">
+                                <span>hoặc</span>
+                            </div>
+                            
+                            <div class="text-center">
+                                <small class="text-muted d-block mb-2">Chưa có tài khoản?</small>
+                                <a href="#" class="text-primary text-decoration-none fw-bold">Đăng ký ngay</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <!-- Tabler JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/js/tabler.min.js"></script>
+    
+    <script type="module">
+        // Load environment config
+        let API_URL = 'http://localhost/btl-db/backend';
+        try {
+            const envResponse = await fetch('./.env.json');
+            const env = await envResponse.json();
+            API_URL = env.API_URL || API_URL;
+        } catch (error) {
+            console.log('Using default API URL');
+        }
+        
+        // Toggle password visibility
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const password = document.getElementById('password');
+            const eyeIcon = document.getElementById('eyeIcon');
+            
+            if (password.type === 'password') {
+                password.type = 'text';
+                eyeIcon.classList.remove('ti-eye');
+                eyeIcon.classList.add('ti-eye-off');
+            } else {
+                password.type = 'password';
+                eyeIcon.classList.remove('ti-eye-off');
+                eyeIcon.classList.add('ti-eye');
+            }
+        });
+        
+        // Handle form submission
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            const btnLogin = document.getElementById('btnLogin');
+            const alertContainer = document.getElementById('alert-container');
+            
+            // Disable button and show loading
+            btnLogin.disabled = true;
+            btnLogin.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang đăng nhập...';
+            alertContainer.innerHTML = '';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.data.user) {
+                    const user = data.data.user;
+                    
+                    // Save user info to localStorage based on role
+                    if (user.role === 'admin') {
+                        localStorage.setItem('admin_user', JSON.stringify(user));
+                        localStorage.setItem('admin_token', data.data.token);
+                        if (rememberMe) {
+                            localStorage.setItem('admin_remember', 'true');
+                        }
+                    } else {
+                        localStorage.setItem('user', JSON.stringify(user));
+                        localStorage.setItem('token', data.data.token);
+                        if (rememberMe) {
+                            localStorage.setItem('remember', 'true');
+                        }
+                    }
+                    
+                    // Show success message
+                    alertContainer.innerHTML = `
+                        <div class="alert alert-success" role="alert">
+                            <div class="d-flex">
+                                <div><i class="ti ti-check me-2"></i></div>
+                                <div>
+                                    <h4 class="alert-title">Đăng nhập thành công!</h4>
+                                    <div class="text-muted">Đang chuyển hướng...</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Redirect based on role
+                    setTimeout(() => {
+                        if (user.role === 'admin') {
+                            window.location.href = './admin/index.html';
+                        } else {
+                            // Redirect to customer dashboard or home page
+                            window.location.href = './customer/index.html';
+                        }
+                    }, 1000);
+                } else {
+                    alertContainer.innerHTML = `
+                        <div class="alert alert-danger alert-dismissible" role="alert">
+                            <div class="d-flex">
+                                <div><i class="ti ti-alert-circle me-2"></i></div>
+                                <div>
+                                    <h4 class="alert-title">Đăng nhập thất bại</h4>
+                                    <div class="text-muted">${data.message || 'Email hoặc mật khẩu không đúng'}</div>
+                                </div>
+                            </div>
+                            <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+                        </div>
+                    `;
+                    btnLogin.disabled = false;
+                    btnLogin.innerHTML = '<i class="ti ti-login me-2"></i>Đăng nhập';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                alertContainer.innerHTML = `
+                    <div class="alert alert-danger alert-dismissible" role="alert">
+                        <div class="d-flex">
+                            <div><i class="ti ti-alert-circle me-2"></i></div>
+                            <div>
+                                <h4 class="alert-title">Lỗi kết nối</h4>
+                                <div class="text-muted">Không thể kết nối đến máy chủ. Vui lòng thử lại sau.</div>
+                            </div>
+                        </div>
+                        <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+                    </div>
+                `;
+                btnLogin.disabled = false;
+                btnLogin.innerHTML = '<i class="ti ti-login me-2"></i>Đăng nhập';
+            }
+        });
+        
+        // Check if already logged in
+        const adminUserStr = localStorage.getItem('admin_user');
+        const customerUserStr = localStorage.getItem('user');
+        
+        if (adminUserStr) {
+            try {
+                const user = JSON.parse(adminUserStr);
+                if (user.role === 'admin') {
+                    window.location.href = './admin/index.html';
+                }
+            } catch (error) {
+                console.error('Error parsing admin user data:', error);
+            }
+        } else if (customerUserStr) {
+            try {
+                const user = JSON.parse(customerUserStr);
+                window.location.href = './customer/index.html';
+            } catch (error) {
+                console.error('Error parsing user data:', error);
+            }
+        }
+    </script>
 </body>
 </html>

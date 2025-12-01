@@ -58,7 +58,7 @@ class AuthController {
             return;
         }
         
-        if ($user['status'] !== 'active') {
+        if ($user['status'] !== 'Hoạt động' && $user['status'] !== 'active') {
             http_response_code(403);
             echo json_encode(['success' => false, 'message' => 'Tài khoản đã bị khóa']);
             return;
@@ -70,12 +70,25 @@ class AuthController {
         // Tạo token (JWT hoặc session)
         $token = $this->generateToken($user);
         
+        // Format user data for response
+        $userData = [
+            'id' => $user['id'],
+            'email' => $user['email'],
+            'name' => trim(($user['fname'] ?? '') . ' ' . ($user['lname'] ?? '')),
+            'fname' => $user['fname'] ?? '',
+            'lname' => $user['lname'] ?? '',
+            'phone' => $user['phone'] ?? '',
+            'address' => $user['address'] ?? '',
+            'role' => $user['role'] ?? 'customer',
+            'status' => $user['status']
+        ];
+        
         http_response_code(200);
         echo json_encode([
             'success' => true, 
             'message' => 'Đăng nhập thành công',
             'data' => [
-                'user' => $user,
+                'user' => $userData,
                 'token' => $token
             ]
         ]);
