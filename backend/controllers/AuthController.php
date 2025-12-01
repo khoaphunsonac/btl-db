@@ -48,50 +48,68 @@ class AuthController {
      * POST /api/auth/login - Đăng nhập
      */
     public function login() {
-        $data = json_decode(file_get_contents("php://input"), true);
-        
-        $user = $this->userModel->getByEmail($data['email']);
-        
-        if (!$user || !password_verify($data['password'], $user['password'])) {
-            http_response_code(401);
-            echo json_encode(['success' => false, 'message' => 'Email hoặc mật khẩu không đúng']);
-            return;
+        try {
+            $data = json_decode(file_get_contents("php://input"), true);
+            
+            if (!isset($data['email']) || !isset($data['password'])) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => 'Email và password là bắt buộc']);
+                return;
+            }
+            
+            $user = $this->userModel->getByEmail($data['email']);
+            
+            if (!$user) {
+                http_response_code(401);
+                echo json_encode(['success' => false, 'message' => 'Email hoặc mật khẩu không đúng']);
+                return;
+            }
+            
+            if (!password_verify($data['password'], $user['password'])) {
+                http_response_code(401);
+                echo json_encode(['success' => false, 'message' => 'Email hoặc mật khẩu không đúng']);
+                return;
+            }
+            
+            if ($user['status'] !== 'Hoạt động' && $user['status'] !== 'active') {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'message' => 'Tài khoản đã bị khóa']);
+                return;
+            }
+            
+            // Cập nhật last_login
+            $this->userModel->updateLastLogin($user['id']);
+            
+            // Tạo token (JWT hoặc session)
+            $token = $this->generateToken($user);
+            
+            // Format user data for response
+            $userData = [
+                'id' => $user['id'],
+                'email' => $user['email'],
+                'name' => trim(($user['fname'] ?? '') . ' ' . ($user['lname'] ?? '')),
+                'fname' => $user['fname'] ?? '',
+                'lname' => $user['lname'] ?? '',
+                'phone' => $user['phone'] ?? '',
+                'address' => $user['address'] ?? '',
+                'role' => $user['role'] ?? 'customer',
+                'status' => $user['status']
+            ];
+            
+            http_response_code(200);
+            echo json_encode([
+                'success' => true, 
+                'message' => 'Đăng nhập thành công',
+                'data' => [
+                    'user' => $userData,
+                    'token' => $token
+                ]
+            ]);
+        } catch (Exception $e) {
+            error_log('Login error: ' . $e->getMessage());
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Lỗi server: ' . $e->getMessage()]);
         }
-        
-        if ($user['status'] !== 'Hoạt động' && $user['status'] !== 'active') {
-            http_response_code(403);
-            echo json_encode(['success' => false, 'message' => 'Tài khoản đã bị khóa']);
-            return;
-        }
-        
-        // Cập nhật last_login
-        $this->userModel->updateLastLogin($user['id']);
-        
-        // Tạo token (JWT hoặc session)
-        $token = $this->generateToken($user);
-        
-        // Format user data for response
-        $userData = [
-            'id' => $user['id'],
-            'email' => $user['email'],
-            'name' => trim(($user['fname'] ?? '') . ' ' . ($user['lname'] ?? '')),
-            'fname' => $user['fname'] ?? '',
-            'lname' => $user['lname'] ?? '',
-            'phone' => $user['phone'] ?? '',
-            'address' => $user['address'] ?? '',
-            'role' => $user['role'] ?? 'customer',
-            'status' => $user['status']
-        ];
-        
-        http_response_code(200);
-        echo json_encode([
-            'success' => true, 
-            'message' => 'Đăng nhập thành công',
-            'data' => [
-                'user' => $userData,
-                'token' => $token
-            ]
-        ]);
     }
     
     /**

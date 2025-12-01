@@ -170,11 +170,10 @@ class User extends BaseModel
                     u.address,
                     u.phone,
                     CASE 
-                        WHEN a.id IS NOT NULL THEN 'admin'
+                        WHEN a.id IS NOT NULL THEN a.role
                         WHEN c.id IS NOT NULL THEN 'customer'
                         ELSE 'customer'
-                    END as role,
-                    a.role as admin_role
+                    END as role
                 FROM {$this->table} ua
                 LEFT JOIN User u ON ua.id = u.account_id
                 LEFT JOIN Admin a ON ua.id = a.id

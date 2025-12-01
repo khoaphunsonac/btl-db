@@ -41,12 +41,33 @@ copy backend\config\database.example.php backend\config\database.php
 #   2. database/initData.sql
 ```
 
-### 3. Chạy ứng dụng
+### 3. Fix passwords (nếu cần)
+
+Nếu gặp lỗi đăng nhập, chạy script để reset tất cả passwords:
+
+```bash
+# Truy cập URL:
+http://localhost/btl-db/backend/fix-passwords.php
+
+# Script sẽ:
+# 1. Hiển thị tất cả admin accounts
+# 2. Kiểm tra password có được hash đúng không
+# 3. Click nút "Fix All Passwords" để update tất cả về: 123456
+```
+
+**Tài khoản admin mặc định:**
+- Email: `admin1@nemthung.com` | Password: `123456` | Role: Quản trị viên
+- Email: `admin2@nemthung.com` | Password: `123456` | Role: Quản trị viên
+
+### 4. Chạy ứng dụng
 
 ```bash
 # Start XAMPP Apache & MySQL
 
-# Frontend
+# Frontend Login
+http://localhost/btl-db/frontend/
+
+# Admin Dashboard
 http://localhost/btl-db/frontend/admin/index.html
 
 # Backend API
@@ -64,7 +85,8 @@ btl-db/
 │   ├── controllers/            # Controllers (User, Product, Order...)
 │   ├── models/                 # Models (BaseModel + entities)
 │   ├── routes/                 # API routing
-│   └── index.php              # Entry point
+│   ├── index.php              # Entry point
+│   └── fix-passwords.php      # Password reset utility
 │
 ├── frontend/                   # Frontend (HTML/JS/CSS)
 │   ├── admin/                  # Admin panel
@@ -99,10 +121,9 @@ btl-db/
 - `edit.html` - Thêm/Sửa
 - `detail.html` - Chi tiết
 
-**Test:**
+**URL:**
 ```
 http://localhost/btl-db/frontend/admin/customers/index.html
-http://localhost/btl-db/frontend/admin/customers/test-api.html
 ```
 
 ---
@@ -226,6 +247,16 @@ export const BASE_URL = 'http://localhost/btl-db/backend';
 
 ## 🐛 Troubleshooting
 
+### Lỗi: Login failed / Password không đúng
+**Giải pháp:**
+1. Truy cập: `http://localhost/btl-db/backend/fix-passwords.php`
+2. Click nút **"Fix All Passwords"** để reset tất cả passwords về `123456`
+3. Login lại với:
+   - Email: `admin1@nemthung.com`
+   - Password: `123456`
+
+**Lưu ý:** Script này sẽ tự động hash password bằng bcrypt và update vào database.
+
 ### Lỗi: Cannot connect to database
 **Giải pháp:**
 1. Kiểm tra XAMPP MySQL đang chạy
@@ -341,7 +372,7 @@ Nếu gặp vấn đề:
 1. Check các file log: `backend/error.log`
 2. Check Console (F12) trong browser
 3. Check Network tab để xem API requests
-4. Test API với `test-api.html`
+4. Xem phần **🐛 Troubleshooting** ở trên
 
 ---
 

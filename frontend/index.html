@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng nhập - NEMTHUNG</title>
+    <title>Đăng nhập Quản trị - NEMTHUNG</title>
     
     <!-- Tabler CSS -->
     <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
@@ -162,8 +162,8 @@
                         <div class="login-logo">
                             <i class="ti ti-package"></i>
                         </div>
-                        <h2 class="login-title">Đăng nhập</h2>
-                        <p class="login-subtitle">NEMTHUNG E-commerce</p>
+                        <h2 class="login-title">Đăng nhập Quản trị</h2>
+                        <p class="login-subtitle">Dành cho Quản trị viên & Nhân viên kho</p>
                         
                         <div id="alert-container"></div>
                         
@@ -205,15 +205,6 @@
                             
                             <div class="text-center">
                                 <a href="#" class="text-muted text-decoration-none small">Quên mật khẩu?</a>
-                            </div>
-                            
-                            <div class="divider">
-                                <span>hoặc</span>
-                            </div>
-                            
-                            <div class="text-center">
-                                <small class="text-muted d-block mb-2">Chưa có tài khoản?</small>
-                                <a href="#" class="text-primary text-decoration-none fw-bold">Đăng ký ngay</a>
                             </div>
                         </form>
                     </div>
@@ -281,43 +272,49 @@
                 if (data.success && data.data.user) {
                     const user = data.data.user;
                     
-                    // Save user info to localStorage based on role
-                    if (user.role === 'admin') {
+                    // Only allow admin roles: Quản trị viên and Nhân viên kho
+                    if (user.role === 'Quản trị viên' || user.role === 'Nhân viên kho') {
+                        // Save admin info to localStorage
                         localStorage.setItem('admin_user', JSON.stringify(user));
                         localStorage.setItem('admin_token', data.data.token);
                         if (rememberMe) {
                             localStorage.setItem('admin_remember', 'true');
                         }
-                    } else {
-                        localStorage.setItem('user', JSON.stringify(user));
-                        localStorage.setItem('token', data.data.token);
-                        if (rememberMe) {
-                            localStorage.setItem('remember', 'true');
-                        }
-                    }
-                    
-                    // Show success message
-                    alertContainer.innerHTML = `
-                        <div class="alert alert-success" role="alert">
-                            <div class="d-flex">
-                                <div><i class="ti ti-check me-2"></i></div>
-                                <div>
-                                    <h4 class="alert-title">Đăng nhập thành công!</h4>
-                                    <div class="text-muted">Đang chuyển hướng...</div>
+                        
+                        // Show success message
+                        alertContainer.innerHTML = `
+                            <div class="alert alert-success" role="alert">
+                                <div class="d-flex">
+                                    <div><i class="ti ti-check me-2"></i></div>
+                                    <div>
+                                        <h4 class="alert-title">Đăng nhập thành công!</h4>
+                                        <div class="text-muted">Đang chuyển hướng đến trang quản trị...</div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    `;
-                    
-                    // Redirect based on role
-                    setTimeout(() => {
-                        if (user.role === 'admin') {
+                        `;
+                        
+                        // Redirect to admin panel
+                        setTimeout(() => {
                             window.location.href = './admin/index.html';
-                        } else {
-                            // Redirect to customer dashboard or home page
-                            window.location.href = './customer/index.html';
-                        }
-                    }, 1000);
+                        }, 1000);
+                    } else {
+                        // User is not admin - show error
+                        alertContainer.innerHTML = `
+                            <div class="alert alert-danger alert-dismissible" role="alert">
+                                <div class="d-flex">
+                                    <div><i class="ti ti-alert-circle me-2"></i></div>
+                                    <div>
+                                        <h4 class="alert-title">Truy cập bị từ chối</h4>
+                                        <div class="text-muted">Tài khoản không có quyền truy cập trang quản trị. Chỉ Quản trị viên và Nhân viên kho mới có thể đăng nhập.</div>
+                                    </div>
+                                </div>
+                                <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+                            </div>
+                        `;
+                        btnLogin.disabled = false;
+                        btnLogin.innerHTML = '<i class="ti ti-login me-2"></i>Đăng nhập';
+                    }
                 } else {
                     alertContainer.innerHTML = `
                         <div class="alert alert-danger alert-dismissible" role="alert">
@@ -353,25 +350,19 @@
             }
         });
         
-        // Check if already logged in
+        // Check if already logged in as admin
         const adminUserStr = localStorage.getItem('admin_user');
-        const customerUserStr = localStorage.getItem('user');
         
         if (adminUserStr) {
             try {
                 const user = JSON.parse(adminUserStr);
-                if (user.role === 'admin') {
+                if (user.role === 'Quản trị viên' || user.role === 'Nhân viên kho') {
                     window.location.href = './admin/index.html';
                 }
             } catch (error) {
                 console.error('Error parsing admin user data:', error);
-            }
-        } else if (customerUserStr) {
-            try {
-                const user = JSON.parse(customerUserStr);
-                window.location.href = './customer/index.html';
-            } catch (error) {
-                console.error('Error parsing user data:', error);
+                localStorage.removeItem('admin_user');
+                localStorage.removeItem('admin_token');
             }
         }
     </script>
