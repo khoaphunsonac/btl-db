@@ -64,7 +64,9 @@ CREATE TABLE Product (
   status ENUM('Còn hàng', 'Hết hàng')
     DEFAULT 'Còn hàng' NOT NULL,
   overall_rating_star DECIMAL NOT NULL DEFAULT 0.0,
-  rating_count INT NOT NULL DEFAULT 0
+  rating_count INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE Category (

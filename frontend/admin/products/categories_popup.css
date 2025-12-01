@@ -1,0 +1,81 @@
+/* categories_popup.css */
+
+/* ==== Popup Container (Điều chỉnh kích thước) ==== */
+.popup-card {
+    background: #fff;
+    padding: 28px 30px;
+    border-radius: 14px;
+    /* Category form chỉ cần nhỏ hơn Product */
+    width: 480px; 
+    max-width: 90vw;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    font-family: "Inter", system-ui, sans-serif;
+}
+
+.popup-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 18px;
+    color: #111827;
+    text-align: center;
+}
+
+/* ==== Form Layout ==== */
+.category-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.form-grid {
+    display: grid;
+    /* Category chỉ cần 1 cột là đủ */
+    grid-template-columns: 1fr; 
+    gap: 16px 18px;
+}
+
+.form-group label,
+.form-grid label {
+    display: flex;
+    flex-direction: column;
+    font-weight: 500;
+    color: #374151;
+    font-size: 15px;
+}
+
+/* Style cho input và textarea của Tabler */
+.category-form input[type="text"],
+.category-form textarea {
+    margin-top: 6px;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%; /* Đảm bảo full width */
+}
+
+.category-form input:focus,
+.category-form textarea:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    outline: none;
+}
+
+.category-form textarea {
+    resize: vertical;
+    min-height: 70px;
+}
+
+/* ==== Action Buttons ==== */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 10px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.form-actions .btn {
+    padding: 10px 18px;
+    font-weight: 600;
+}
