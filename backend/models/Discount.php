@@ -130,17 +130,43 @@ class Discount extends BaseModel {
     public function create($data) {
         $sql = "INSERT INTO Discount (value, `condition`, time_start, time_end, type)
                 VALUES (:value, :condition, :time_start, :time_end, :type)";
-
-        $stmt = $this->pdo->prepare($sql);
-
-        return $stmt->execute([
-            ':value' => $data['value'],
-            ':condition' => $data['condition'],
-            ':time_start' => $data['time_start'],
-            ':time_end' => $data['time_end'],
-            ':type' => $data['type']
-        ]);
+    
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([
+                ':value' => $data['value'],
+                ':condition' => $data['condition'],
+                ':time_start' => $data['time_start'],
+                ':time_end' => $data['time_end'],
+                ':type' => $data['type']
+            ]);
+    
+            return ['success' => true];
+    
+        } catch (PDOException $e) {
+            // Lỗi check constraint CK_time_start_end
+            if ($e->errorInfo[1] == 4025) {
+                if (strpos($e->getMessage(), 'CK_time_start_end') !== false) {
+                    return [
+                        'success' => false,
+                        'errors' => [
+                            'time_end' => 'Ngày kết thúc phải sau ngày bắt đầu'
+                        ]
+                    ];
+                }
+                
+            }
+    
+            // Lỗi khác
+            return [
+                'success' => false,
+                'errors' => [
+                    'general' => 'Lỗi cơ sở dữ liệu: ' . $e->getMessage()
+                ]
+            ];
+        }
     }
+    
 
     /**
      * Update discount

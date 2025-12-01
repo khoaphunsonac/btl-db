@@ -227,7 +227,7 @@ async function handleAddDiscount() {
         });
 
         if (response.success) {
-            showSuccess('Đã thêm mã giảm giá thành công');
+            showSuccess(response.message || 'Đã thêm mã giảm giá thành công');
             loadDiscounts();
 
             // đóng modal
