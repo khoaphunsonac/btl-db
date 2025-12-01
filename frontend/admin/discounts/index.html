@@ -11,6 +11,9 @@
 
     <!-- FIXED SIDEBAR -->
     <link rel="stylesheet" href="../fixed-sidebar.css?v=1">
+    
+    <!-- Custom styles (Toast) -->
+    <link rel="stylesheet" href="../../css/toast.css">
 </head>
 
 <body>
@@ -50,10 +53,59 @@
                                 </div>
                                 bản ghi
                             </div>
-                            <div class="ms-auto text-muted">
+                            <!-- <div class="ms-auto text-muted">
                                 Tìm kiếm:
-                                <input type="text" class="form-control form-control-sm d-inline-block w-20" placeholder="Tìm...">
-                            </div>
+                                <input type="text" class="form-control form-control-sm d-inline-block w-20" id="searchInput" placeholder="Tìm...">
+                            </div> -->
+                            <form id="discountFilterForm" class="ms-auto d-flex align-items-center gap-2">
+
+                                <!-- Search -->
+                                <div>
+                                    <label class="form-label">Tìm kiếm</label>
+                                    <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Nhập điều kiện...">
+                                </div>
+                            
+                                <!-- Filter type -->
+                                <div>
+                                    <label class="form-label">Loại</label>
+                                    <select id="filterType" class="form-select form-select-sm">
+                                        <option value="">Tất cả</option>
+                                        <option value="Phần trăm">Phần trăm</option>
+                                        <option value="Giá trị">Giá trị</option>
+                                    </select>
+                                </div>
+                            
+                                <!-- Filter status -->
+                                <div>
+                                    <label class="form-label">Trạng thái</label>
+                                    <select id="filterStatus" class="form-select form-select-sm">
+                                        <option value="">Tất cả</option>
+                                        <option value="active">Đang hoạt động</option>
+                                        <option value="upcoming">Sắp bắt đầu</option>
+                                        <option value="expired">Đã hết hạn</option>
+                                    </select>
+                                </div>
+                            
+                                <!-- Sort -->
+                                <div>
+                                    <label class="form-label">Sắp xếp</label>
+                                    <select id="filterSort" class="form-select form-select-sm">
+                                        <option value="">Mới nhất</option>
+                                        <option value="value-asc">Giá trị tăng dần</option>
+                                        <option value="value-desc">Giá trị giảm dần</option>
+                                        <option value="time-start-asc">Thời gian bắt đầu tăng</option>
+                                        <option value="time-start-desc">Thời gian bắt đầu giảm</option>
+                                    </select>
+                                </div>
+                            
+                                <!-- Button -->
+                                <div class="mt-4">
+                                    <button type="submit" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-search"></i> Lọc
+                                    </button>
+                                </div>
+                            
+                            </form>                            
                         </div>
                     </div>
 

@@ -1,8 +1,7 @@
 <?php
 require_once __DIR__ . '/BaseModel.php';
 
-class Discount extends BaseModel
-{
+class Discount extends BaseModel {
     protected $table = 'Discount';
 
     /**
@@ -115,8 +114,7 @@ class Discount extends BaseModel
     /**
      * Get discount by ID
      */
-    public function getById($id)
-    {
+    public function getById($id) {
         $sql = "SELECT * FROM Discount WHERE id = :id";
 
         $stmt = $this->pdo->prepare($sql);
@@ -129,27 +127,51 @@ class Discount extends BaseModel
     /**
      * Create discount
      */
-    public function create($data)
-    {
+    public function create($data) {
         $sql = "INSERT INTO Discount (value, `condition`, time_start, time_end, type)
                 VALUES (:value, :condition, :time_start, :time_end, :type)";
-
-        $stmt = $this->pdo->prepare($sql);
-
-        return $stmt->execute([
-            ':value' => $data['value'],
-            ':condition' => $data['condition'],
-            ':time_start' => $data['time_start'],
-            ':time_end' => $data['time_end'],
-            ':type' => $data['type']
-        ]);
+    
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([
+                ':value' => $data['value'],
+                ':condition' => $data['condition'],
+                ':time_start' => $data['time_start'],
+                ':time_end' => $data['time_end'],
+                ':type' => $data['type']
+            ]);
+    
+            return ['success' => true];
+    
+        } catch (PDOException $e) {
+            // Lỗi check constraint CK_time_start_end
+            if ($e->errorInfo[1] == 4025) {
+                if (strpos($e->getMessage(), 'CK_time_start_end') !== false) {
+                    return [
+                        'success' => false,
+                        'errors' => [
+                            'time_end' => 'Ngày kết thúc phải sau ngày bắt đầu'
+                        ]
+                    ];
+                }
+                
+            }
+    
+            // Lỗi khác
+            return [
+                'success' => false,
+                'errors' => [
+                    'general' => 'Lỗi cơ sở dữ liệu: ' . $e->getMessage()
+                ]
+            ];
+        }
     }
+    
 
     /**
      * Update discount
      */
-    public function update($id, $data)
-    {
+    public function update($id, $data) {
         $sql = "UPDATE Discount 
                 SET value = :value,
                     `condition` = :condition,
@@ -173,8 +195,7 @@ class Discount extends BaseModel
     /**
      * Delete discount
      */
-    public function delete($id)
-    {
+    public function delete($id) {
         $sql = "DELETE FROM Discount WHERE id = :id";
 
         $stmt = $this->pdo->prepare($sql);

@@ -4,14 +4,20 @@
  */
 
 import apiClient from '../../js/api-client.js';
-import { formatDateTime, showToast, showSuccess, showError, confirm } from '../../js/utils.js';
+import { formatDateTime, showSuccess, showError, showToast, confirm } from '../../js/utils.js';
 
 // State
 let currentPage = 1;
 let currentLimit = 2;
-let currentFilters = {
-    search: '',
-    sortBy: 'id-desc'
+// let currentFilters = {
+//     search: '',
+//     sortBy: 'id-desc'
+// };
+const currentFilters = {
+    search: "",
+    type: "",
+    status: "",
+    sortBy: ""
 };
 
 // Initialize
@@ -34,6 +40,17 @@ function initializeEventListeners() {
         loadDiscounts();
     });
 
+    document.getElementById("discountFilterForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+    
+        currentFilters.search = document.getElementById("searchInput").value.trim();
+        currentFilters.type = document.getElementById("filterType").value;
+        currentFilters.status = document.getElementById("filterStatus").value;
+        currentFilters.sortBy = document.getElementById("filterSort").value;
+
+        loadDiscounts();
+    });
+
     // Add discount modal save button
     document.querySelector('#modal-add-discount .btn-primary')?.addEventListener('click', handleAddDiscount);
 }
@@ -43,7 +60,6 @@ function initializeEventListeners() {
  */
 function handleSearch() {
     currentFilters.search = document.getElementById('searchInput').value.trim();
-    currentPage = 1;
     loadDiscounts();
 }
 
@@ -55,7 +71,11 @@ async function loadDiscounts() {
         const params = {
             page: currentPage,
             limit: currentLimit,
-        };
+            search: currentFilters.search,
+            type: currentFilters.type,
+            status: currentFilters.status,
+            sortBy: currentFilters.sortBy,
+        };        
         if (currentFilters.search) params.search = currentFilters.search;
         if (currentFilters.sortBy) params.sortBy = currentFilters.sortBy;
 
@@ -100,9 +120,6 @@ function renderDiscountTable(discounts) {
                     <button class="btn btn-ghost-primary" onclick="editDiscount(${d.id})" title="Chỉnh sửa">
                         <i class="ti ti-edit"></i>
                     </button>
-                    <button class="btn btn-ghost-warning" onclick="toggleDiscount(${d.id}, '${d.type}')" title="Bật/Tắt">
-                        <i class="ti ti-power"></i>
-                    </button>
                     <button class="btn btn-ghost-danger" onclick="deleteDiscount(${d.id})" title="Xóa">
                         <i class="ti ti-trash"></i>
                     </button>
@@ -139,11 +156,6 @@ function renderPagination(pagination) {
     const total_records = document.getElementById('total-records');
     const count_show = document.getElementById('count-show');
 
-    if (total_pages <= 1) {
-        paginationEl.innerHTML = '';
-        return;
-    }
-
     total_records.innerHTML = pagination.total_items;
     count_show.innerHTML = pagination.per_page;
 
@@ -154,6 +166,11 @@ function renderPagination(pagination) {
     const toInt = parseInt(to);
     const count_show_int = toInt - fromInt + 1;
     count_show.innerHTML = count_show_int.toString();
+
+    if (total_pages <= 1) {
+        paginationEl.innerHTML = '';
+        return;
+    }
 
     let html = '';
     // Previous
@@ -200,11 +217,6 @@ async function handleAddDiscount() {
     const time_end = document.getElementById("add-discount-end").value;
     const type = document.getElementById("add-discount-type").value;
 
-    if (!value || !condition || !time_start || !time_end) {
-        showError('Vui lòng điền đầy đủ thông tin');
-        return;
-    }
-
     try {
         const response = await apiClient.post('discounts', {
             value,
@@ -215,7 +227,7 @@ async function handleAddDiscount() {
         });
 
         if (response.success) {
-            showSuccess('Đã thêm mã giảm giá thành công');
+            showSuccess(response.message || 'Đã thêm mã giảm giá thành công');
             loadDiscounts();
 
             // đóng modal
@@ -225,10 +237,20 @@ async function handleAddDiscount() {
         } else {
             showError(response.message || 'Không thể thêm mã giảm giá');
         }
-    } catch (error) {
-        console.error('Error adding discount:', error);
-        showError('Lỗi khi thêm mã giảm giá');
+    } catch (err) {
+        console.error(err);
+    
+        const errors = err.data?.errors;
+    
+        if (errors) {
+            showError(
+                Object.values(errors).join("<br>")
+            );
+        } else {
+            showError(err.message);
+        }
     }
+    
 }
 
 /**
@@ -236,27 +258,6 @@ async function handleAddDiscount() {
  */
 window.editDiscount = function(id) {
     window.location.href = `./edit.html?id=${id}`;
-};
-
-/**
- * Toggle discount (active/inactive)
- */
-window.toggleDiscount = async function(id) {
-    const confirmed = await confirm('Bạn có chắc muốn bật/tắt mã giảm giá này?');
-    if (!confirmed) return;
-
-    try {
-        const response = await apiClient.put(`discounts/${id}/toggle`);
-        if (response.success) {
-            showSuccess('Đã cập nhật trạng thái mã giảm giá');
-            loadDiscounts();
-        } else {
-            showError(response.message || 'Không thể cập nhật trạng thái');
-        }
-    } catch (error) {
-        console.error('Error toggling discount:', error);
-        showError('Lỗi khi cập nhật trạng thái');
-    }
 };
 
 /**

@@ -56,31 +56,33 @@ class DiscountController {
      */
     public function store() {
         $data = json_decode(file_get_contents("php://input"), true);
-
-        // validate input
+    
+        // validate input trước (PHP)
         $errors = $this->validateDiscount($data);
         if (!empty($errors)) {
             http_response_code(400);
             echo json_encode(['success' => false, 'errors' => $errors]);
             return;
         }
-
+    
+        // tạo discount
         $result = $this->discountModel->create($data);
-
-        if ($result) {
-            http_response_code(201);
-            echo json_encode([
-                'success' => true,
-                'message' => 'Tạo mã giảm giá thành công'
-            ]);
-        } else {
-            http_response_code(500);
+    
+        if (!$result['success']) {
+            http_response_code(400); // 400 vì lỗi input/check constraint
             echo json_encode([
                 'success' => false,
-                'message' => 'Tạo mã giảm giá thất bại'
+                'errors' => $result['errors']
             ]);
+            return;
         }
-    }
+    
+        http_response_code(201);
+        echo json_encode([
+            'success' => true,
+            'message' => 'Tạo mã giảm giá thành công'
+        ]);
+    }    
 
     /**
      * PUT /api/discounts/{id}

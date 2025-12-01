@@ -42,19 +42,26 @@ class ApiClient {
    */
   async handleResponse(response) {
     const contentType = response.headers.get('content-type');
-    
+    let data = null;
+  
     if (contentType && contentType.includes('application/json')) {
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || `HTTP error! status: ${response.status}`);
-      }
-      
-      return data;
+      data = await response.json().catch(() => null);
     } else {
       const text = await response.text();
-      throw new Error(`Expected JSON response but got: ${text.substring(0, 100)}`);
+      const error = new Error(`Expected JSON response but got: ${text.substring(0, 100)}`);
+      error.status = response.status;
+      throw error;
     }
+  
+    // If API fails
+    if (!response.ok) {
+      const error = new Error(data?.message || `HTTP error! status: ${response.status}`);
+      error.status = response.status;
+      error.data = data;   
+      throw error;
+    }
+  
+    return data;
   }
 
   /**
