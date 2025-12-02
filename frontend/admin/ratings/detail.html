@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chi tiết đánh giá - NEMTHUNG Admin</title>
+
+    <!-- Tabler CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet"/>
+
+    <!-- FINAL FIXED SIDEBAR CSS -->
+    <link rel="stylesheet" href="../fixed-sidebar.css?v=1">
+    
+    <style>
+        .rating-stars {
+            color: #ffc107;
+            font-size: 1.5rem;
+        }
+        .rating-stars .empty {
+            color: #e3e6f0;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #495057;
+        }
+        .detail-value {
+            color: #212529;
+        }
+        .rating-content {
+            background-color: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 1rem;
+            border-radius: 0 0.375rem 0.375rem 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <!-- Sidebar -->
+        <div class="mount-admin-sidebar"></div>
+
+        <!-- Main Content -->
+        <div class="page-wrapper">
+            <!-- Page header -->
+            <div class="page-header d-print-none">
+                <div class="container-xl">
+                    <div class="row g-2 align-items-center">
+                        <div class="col">
+                            <h2 class="page-title">Chi tiết đánh giá #<span id="ratingId">...</span></h2>
+                            <div class="text-muted mt-1">Thông tin chi tiết về đánh giá của khách hàng</div>
+                        </div>
+                        <div class="col-auto">
+                            <div class="btn-group">
+                                <button class="btn btn-primary" id="btnEdit">
+                                    <i class="ti ti-edit"></i> Sửa đánh giá
+                                </button>
+                                <button class="btn btn-outline-danger" id="btnDelete">
+                                    <i class="ti ti-trash"></i> Xóa đánh giá
+                                </button>
+                                <button class="btn btn-outline-secondary" onclick="window.location.href='./index.html'">
+                                    <i class="ti ti-arrow-left"></i> Quay lại
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page body -->
+            <div class="page-body">
+                <div class="container-xl">
+                    <div id="loadingSpinner" class="text-center py-5">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Đang tải...</span>
+                        </div>
+                    </div>
+
+                    <div id="ratingContent" style="display: none;">
+                        <div class="row">
+                            <!-- Rating Information -->
+                            <div class="col-lg-8">
+                                <div class="card mb-3">
+                                    <div class="card-header">
+                                        <h3 class="card-title">
+                                            <i class="ti ti-star me-2"></i>Thông tin đánh giá
+                                        </h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <div class="detail-label">ID đánh giá</div>
+                                                <div class="detail-value">#<span id="detailId">-</span></div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="detail-label">Ngày đánh giá</div>
+                                                <div class="detail-value" id="detailDate">-</div>
+                                            </div>
+                                            <div class="col-12">
+                                                <div class="detail-label">Số sao đánh giá</div>
+                                                <div class="detail-value">
+                                                    <div id="detailStars" class="rating-stars"></div>
+                                                    <span id="detailStarText" class="ms-2 badge bg-primary"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <div class="detail-label">Nội dung đánh giá</div>
+                                                <div class="rating-content mt-2">
+                                                    <div id="detailContent">-</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Product Information -->
+                                <div class="card mb-3">
+                                    <div class="card-header">
+                                        <h3 class="card-title">
+                                            <i class="ti ti-box me-2"></i>Thông tin sản phẩm
+                                        </h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-8">
+                                                <div class="detail-label">Tên sản phẩm</div>
+                                                <div class="detail-value" id="detailProductName">-</div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="detail-label">Thương hiệu</div>
+                                                <div class="detail-value" id="detailTrademark">-</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Customer Information -->
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">
+                                            <i class="ti ti-user me-2"></i>Thông tin khách hàng
+                                        </h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <div class="detail-label">Tên khách hàng</div>
+                                                <div class="detail-value" id="detailCustomerName">-</div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="detail-label">Email</div>
+                                                <div class="detail-value" id="detailEmail">-</div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="detail-label">Số điện thoại</div>
+                                                <div class="detail-value" id="detailPhone">-</div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="detail-label">Địa chỉ</div>
+                                                <div class="detail-value" id="detailAddress">-</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Actions & Statistics -->
+                            <div class="col-lg-4">
+                                <div class="card mb-3">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Thao tác nhanh</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-2">
+                                            <div class="col-12">
+                                                <button class="btn btn-primary w-100" id="btnEditQuick">
+                                                    <i class="ti ti-edit"></i> Sửa đánh giá
+                                                </button>
+                                            </div>
+                                            <div class="col-12">
+                                                <button class="btn btn-outline-secondary w-100" onclick="window.print()">
+                                                    <i class="ti ti-printer"></i> In thông tin
+                                                </button>
+                                            </div>
+                                            <div class="col-12">
+                                                <button class="btn btn-outline-danger w-100" id="btnDeleteQuick">
+                                                    <i class="ti ti-trash"></i> Xóa đánh giá
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Thống kê</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-12">
+                                                <div class="detail-label">Trạng thái</div>
+                                                <div class="detail-value">
+                                                    <span class="badge bg-success">Đã đăng</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <div class="detail-label">Loại đánh giá</div>
+                                                <div class="detail-value" id="ratingType">-</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabler JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/js/tabler.min.js"></script>
+    
+    <!-- Load AdminSidebar -->
+    <script type="module">
+        import { mountAdminSidebar } from '../../components/AdminSidebar.js';
+        document.addEventListener('DOMContentLoaded', () => {
+            mountAdminSidebar('.mount-admin-sidebar', 'admin-ratings');
+        });
+    </script>
+
+    <!-- Rating Detail Script -->
+    <script type="module" src="./admin_ratings_detail.js"></script>
+</body>
+</html>

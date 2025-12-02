@@ -50,10 +50,16 @@ class User extends BaseModel
                 case 'name-desc':
                     $orderBy = 'u.lname DESC, u.fname DESC';
                     break;
+                case 'rank-asc':
+                    $orderBy = 'member_rank ASC';
+                    break;
+                case 'rank-desc':
+                    $orderBy = 'member_rank DESC';
+                    break;
             }
         }
         
-        // Build main query
+        // Build main query with ranking and behavior analysis
         $sql = "SELECT 
                     ua.id,
                     ua.email,
@@ -62,7 +68,9 @@ class User extends BaseModel
                     u.fname,
                     u.lname,
                     u.address,
-                    u.phone
+                    u.phone,
+                    Func_XepHangKhachHang(ua.id) as member_rank,
+                    Func_PhanTichHanhViKhachHang(ua.id) as customer_behavior
                 FROM User_Account ua
                 INNER JOIN Customer c ON ua.id = c.id
                 INNER JOIN User u ON ua.id = u.account_id
@@ -114,7 +122,7 @@ class User extends BaseModel
     }
     
     /**
-     * Override getById to get full customer info with statistics
+     * Override getById to get full customer info with statistics, ranking and behavior
      */
     public function getById($id)
     {
@@ -129,7 +137,9 @@ class User extends BaseModel
                     u.phone,
                     COUNT(DISTINCT o.id) as total_orders,
                     COALESCE(SUM(CASE WHEN o.payment_status = 'Đã thanh toán' THEN o.total_cost ELSE 0 END), 0) as total_spent,
-                    COUNT(DISTINCT CASE WHEN o.payment_status = 'Đã thanh toán' THEN o.id END) as completed_orders
+                    COUNT(DISTINCT CASE WHEN o.payment_status = 'Đã thanh toán' THEN o.id END) as completed_orders,
+                    Func_XepHangKhachHang(ua.id) as member_rank,
+                    Func_PhanTichHanhViKhachHang(ua.id) as customer_behavior
                 FROM User_Account ua
                 LEFT JOIN Customer c ON ua.id = c.id
                 LEFT JOIN User u ON ua.id = u.account_id
@@ -352,7 +362,7 @@ class User extends BaseModel
     }
     
     /**
-     * Get customer statistics
+     * Get customer statistics with ranking distribution
      */
     public function getStatistics()
     {
@@ -381,11 +391,32 @@ class User extends BaseModel
         $stmtNew = $this->pdo->query($sqlNew);
         $newThisMonth = $stmtNew->fetch()['new_count'];
         
+        // Customer ranking distribution
+        $sqlRanking = "SELECT 
+                        Func_XepHangKhachHang(c.id) as rank,
+                        COUNT(*) as count
+                       FROM Customer c
+                       GROUP BY Func_XepHangKhachHang(c.id)
+                       ORDER BY rank";
+        $stmtRanking = $this->pdo->query($sqlRanking);
+        $rankingDistribution = $stmtRanking->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Customer behavior insights
+        $sqlBehavior = "SELECT 
+                         Func_PhanTichHanhViKhachHang(c.id) as behavior,
+                         COUNT(*) as count
+                        FROM Customer c
+                        GROUP BY Func_PhanTichHanhViKhachHang(c.id)";
+        $stmtBehavior = $this->pdo->query($sqlBehavior);
+        $behaviorInsights = $stmtBehavior->fetchAll(PDO::FETCH_ASSOC);
+        
         return [
             'total' => (int)$total,
             'active' => (int)$active,
             'inactive' => (int)$inactive,
-            'new_this_month' => (int)$newThisMonth
+            'new_this_month' => (int)$newThisMonth,
+            'ranking_distribution' => $rankingDistribution,
+            'behavior_insights' => $behaviorInsights
         ];
     }
 }

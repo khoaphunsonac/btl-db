@@ -99,6 +99,12 @@ async function loadStatistics() {
             document.getElementById('stat-active').textContent = stats.active || 0;
             document.getElementById('stat-inactive').textContent = stats.inactive || 0;
             document.getElementById('stat-new').textContent = stats.new_this_month || 0;
+            
+            // Render ranking distribution
+            renderRankingDistribution(stats.ranking_distribution || []);
+            
+            // Render behavior insights
+            renderBehaviorInsights(stats.behavior_insights || []);
         }
     } catch (error) {
         console.error('Error loading statistics:', error);
@@ -107,6 +113,20 @@ async function loadStatistics() {
         document.getElementById('stat-active').textContent = '0';
         document.getElementById('stat-inactive').textContent = '0';
         document.getElementById('stat-new').textContent = '0';
+        
+        // Show error state
+        document.getElementById('ranking-distribution').innerHTML = `
+            <div class="text-center text-muted py-3">
+                <i class="ti ti-alert-circle"></i>
+                <div class="mt-2">Không thể tải dữ liệu</div>
+            </div>
+        `;
+        document.getElementById('behavior-insights').innerHTML = `
+            <div class="text-center text-muted py-3">
+                <i class="ti ti-alert-circle"></i>
+                <div class="mt-2">Không thể tải dữ liệu</div>
+            </div>
+        `;
     }
 }
 
@@ -127,11 +147,15 @@ function renderCustomerTable(customers) {
             <td>
                 <div><strong>${escapeHtml(customer.fname)} ${escapeHtml(customer.lname)}</strong></div>
                 <div class="customer-email">${escapeHtml(customer.email)}</div>
+                <div class="text-muted small">${truncateText(customer.address || '-', 30)}</div>
             </td>
             <td class="customer-phone">${escapeHtml(customer.phone || '-')}</td>
             <td>
-                <span class="text-muted" title="${escapeHtml(customer.address || '-')}">
-                    ${truncateText(customer.address || '-', 40)}
+                ${renderRankBadge(customer.member_rank)}
+            </td>
+            <td>
+                <span class="badge bg-blue-lt" title="${escapeHtml(customer.customer_behavior || 'Chưa phân tích')}">
+                    ${truncateText(customer.customer_behavior || 'Chưa có dữ liệu', 20)}
                 </span>
             </td>
             <td>
@@ -168,12 +192,136 @@ function renderEmptyTable() {
     const tbody = document.getElementById('customerTableBody');
     tbody.innerHTML = `
         <tr>
-            <td colspan="7" class="text-center text-muted py-5">
+            <td colspan="8" class="text-center text-muted py-5">
                 <i class="ti ti-users-off" style="font-size: 3rem; opacity: 0.3;"></i>
                 <p class="mt-3">Không có khách hàng nào</p>
             </td>
         </tr>
     `;
+}
+
+/**
+ * Render rank badge
+ */
+function renderRankBadge(rank) {
+    const rankColors = {
+        'VIP': 'bg-purple',
+        'Khách hàng thân thiết': 'bg-green', 
+        'Khách hàng thường': 'bg-blue',
+        'Khách hàng mới': 'bg-yellow',
+        'Thành viên Mới': 'bg-cyan',
+        'Thành viên Thường': 'bg-blue',
+        'Thành viên VIP': 'bg-purple',
+        'Thành viên Kim Cương': 'bg-dark'
+    };
+    
+    const rankIcons = {
+        'VIP': 'crown',
+        'Khách hàng thân thiết': 'star',
+        'Khách hàng thường': 'user', 
+        'Khách hàng mới': 'user-plus',
+        'Thành viên Mới': 'user-plus',
+        'Thành viên Thường': 'user',
+        'Thành viên VIP': 'crown',
+        'Thành viên Kim Cương': 'diamond'
+    };
+    
+    const badgeClass = rankColors[rank] || 'bg-gray';
+    const icon = rankIcons[rank] || 'user';
+    
+    return `<span class="badge ${badgeClass} text-white">
+        <i class="ti ti-${icon}"></i> ${rank || 'Chưa xếp hạng'}
+    </span>`;
+}
+
+/**
+ * Render ranking distribution
+ */
+function renderRankingDistribution(rankings) {
+    const container = document.getElementById('ranking-distribution');
+    
+    if (!rankings || rankings.length === 0) {
+        container.innerHTML = `
+            <div class="text-center text-muted py-3">
+                <i class="ti ti-info-circle"></i>
+                <div class="mt-2">Chưa có dữ liệu xếp hạng</div>
+            </div>
+        `;
+        return;
+    }
+    
+    const total = rankings.reduce((sum, item) => sum + item.count, 0);
+    
+    container.innerHTML = rankings.map(item => {
+        const percentage = ((item.count / total) * 100).toFixed(1);
+        return `
+            <div class="d-flex align-items-center mb-3">
+                <div class="me-3" style="min-width: 120px;">
+                    ${renderRankBadge(item.rank)}
+                </div>
+                <div class="flex-1">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted small">${item.count} khách hàng</span>
+                        <span class="text-muted small">${percentage}%</span>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-primary" style="width: ${percentage}%"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+/**
+ * Render behavior insights
+ */
+function renderBehaviorInsights(behaviors) {
+    const container = document.getElementById('behavior-insights');
+    
+    if (!behaviors || behaviors.length === 0) {
+        container.innerHTML = `
+            <div class="text-center text-muted py-3">
+                <i class="ti ti-info-circle"></i>
+                <div class="mt-2">Chưa có dữ liệu phân tích</div>
+            </div>
+        `;
+        return;
+    }
+    
+    const total = behaviors.reduce((sum, item) => sum + item.count, 0);
+    
+    const behaviorColors = {
+        'Chưa có đánh giá nào': 'bg-gray-lt',
+        'Khách hàng thân thiện (Rất hài lòng)': 'bg-green-lt',
+        'Khách hàng bình thường': 'bg-blue-lt',
+        'Khách hàng khó tính': 'bg-orange-lt',
+        'Khách hàng không hài lòng': 'bg-red-lt'
+    };
+    
+    container.innerHTML = behaviors.map(item => {
+        const percentage = ((item.count / total) * 100).toFixed(1);
+        const colorClass = behaviorColors[item.behavior] || 'bg-gray-lt';
+        
+        return `
+            <div class="d-flex align-items-center mb-3">
+                <div class="me-3">
+                    <span class="badge ${colorClass}" style="min-width: 120px; text-align: left;">
+                        ${truncateText(item.behavior, 25)}
+                    </span>
+                </div>
+                <div class="flex-1">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted small">${item.count} khách hàng</span>
+                        <span class="text-muted small">${percentage}%</span>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-info" style="width: ${percentage}%"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
 }
 
 /**

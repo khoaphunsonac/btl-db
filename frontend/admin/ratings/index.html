@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Quản lý khách hàng - NEMTHUNG Admin</title>
+    <title>Quản lý đánh giá - NEMTHUNG Admin</title>
 
     <!-- Tabler CSS -->
     <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
@@ -13,27 +13,27 @@
     <link rel="stylesheet" href="../fixed-sidebar.css?v=1">
     
     <style>
-        .customer-email {
-            color: #6c757d;
-            font-size: 0.875rem;
+        .rating-stars {
+            color: #ffc107;
         }
-        .customer-phone {
-            font-weight: 500;
+        .rating-stars .empty {
+            color: #e3e6f0;
         }
-        .status-badge {
+        .comment-preview {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .rating-badge {
             font-size: 0.75rem;
             padding: 0.25rem 0.5rem;
         }
-        .progress {
-            background-color: #f1f3f4;
+        .product-info-cell {
+            font-size: 0.875rem;
         }
-        .badge {
-            font-weight: 500;
-        }
-        #ranking-distribution .badge,
-        #behavior-insights .badge {
-            font-size: 0.7rem;
-            white-space: nowrap;
+        .text-muted.small {
+            font-size: 0.75rem;
         }
     </style>
 </head>
@@ -50,13 +50,18 @@
                 <div class="container-xl">
                     <div class="row g-2 align-items-center">
                         <div class="col">
-                            <h2 class="page-title">Quản lý khách hàng</h2>
-                            <div class="text-muted mt-1">Quản lý thông tin khách hàng trong hệ thống</div>
+                            <h2 class="page-title">Quản lý đánh giá</h2>
+                            <div class="text-muted mt-1">Quản lý đánh giá và phản hồi từ khách hàng</div>
                         </div>
                         <div class="col-auto">
-                            <button class="btn btn-primary" id="btnAdd">
-                                <i class="ti ti-plus"></i> Thêm khách hàng
-                            </button>
+                            <div class="btn-group">
+                                <button class="btn btn-primary" onclick="window.location.href='./edit.html'">
+                                    <i class="ti ti-plus"></i> Thêm đánh giá
+                                </button>
+                                <button class="btn btn-outline-primary" onclick="refreshData()">
+                                    <i class="ti ti-refresh"></i> Làm mới
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -71,12 +76,12 @@
                             <div class="card">
                                 <div class="card-body">
                                     <div class="d-flex align-items-center">
-                                        <div class="subheader">Tổng khách hàng</div>
+                                        <div class="subheader">Tổng đánh giá</div>
                                         <div class="ms-auto">
-                                            <i class="ti ti-users text-blue" style="font-size: 2rem;"></i>
+                                            <i class="ti ti-star text-yellow" style="font-size: 2rem;"></i>
                                         </div>
                                     </div>
-                                    <div class="h1 mb-0" id="stat-total">0</div>
+                                    <div class="h1 mb-0" id="total-ratings">0</div>
                                 </div>
                             </div>
                         </div>
@@ -84,12 +89,12 @@
                             <div class="card">
                                 <div class="card-body">
                                     <div class="d-flex align-items-center">
-                                        <div class="subheader">Đang hoạt động</div>
+                                        <div class="subheader">Điểm trung bình</div>
                                         <div class="ms-auto">
-                                            <i class="ti ti-user-check text-green" style="font-size: 2rem;"></i>
+                                            <i class="ti ti-chart-line text-green" style="font-size: 2rem;"></i>
                                         </div>
                                     </div>
-                                    <div class="h1 mb-0 text-green" id="stat-active">0</div>
+                                    <div class="h1 mb-0 text-green" id="average-rating">0.0</div>
                                 </div>
                             </div>
                         </div>
@@ -97,12 +102,12 @@
                             <div class="card">
                                 <div class="card-body">
                                     <div class="d-flex align-items-center">
-                                        <div class="subheader">Ngưng hoạt động</div>
+                                        <div class="subheader">5 sao</div>
                                         <div class="ms-auto">
-                                            <i class="ti ti-user-x text-red" style="font-size: 2rem;"></i>
+                                            <i class="ti ti-thumb-up text-blue" style="font-size: 2rem;"></i>
                                         </div>
                                     </div>
-                                    <div class="h1 mb-0 text-red" id="stat-inactive">0</div>
+                                    <div class="h1 mb-0 text-blue" id="five-star-count">0</div>
                                 </div>
                             </div>
                         </div>
@@ -110,52 +115,12 @@
                             <div class="card">
                                 <div class="card-body">
                                     <div class="d-flex align-items-center">
-                                        <div class="subheader">Khách hàng mới (tháng)</div>
+                                        <div class="subheader">1 sao</div>
                                         <div class="ms-auto">
-                                            <i class="ti ti-user-plus text-yellow" style="font-size: 2rem;"></i>
+                                            <i class="ti ti-thumb-down text-red" style="font-size: 2rem;"></i>
                                         </div>
                                     </div>
-                                    <div class="h1 mb-0 text-yellow" id="stat-new">0</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Ranking & Behavior Insights -->
-                    <div class="row row-cards mb-3">
-                        <div class="col-lg-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3 class="card-title">
-                                        <i class="ti ti-crown me-2"></i>
-                                        Phân phối xếp hạng khách hàng
-                                    </h3>
-                                </div>
-                                <div class="card-body">
-                                    <div id="ranking-distribution">
-                                        <div class="text-center text-muted py-3">
-                                            <div class="spinner-border spinner-border-sm" role="status"></div>
-                                            <div class="mt-2">Đang tải...</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3 class="card-title">
-                                        <i class="ti ti-chart-pie me-2"></i>
-                                        Phân tích hành vi khách hàng
-                                    </h3>
-                                </div>
-                                <div class="card-body">
-                                    <div id="behavior-insights">
-                                        <div class="text-center text-muted py-3">
-                                            <div class="spinner-border spinner-border-sm" role="status"></div>
-                                            <div class="mt-2">Đang tải...</div>
-                                        </div>
-                                    </div>
+                                    <div class="h1 mb-0 text-red" id="one-star-count">0</div>
                                 </div>
                             </div>
                         </div>
@@ -168,29 +133,30 @@
                                 <div class="col-md-4">
                                     <label class="form-label">Tìm kiếm</label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control" id="searchInput" placeholder="Tên, email, số điện thoại...">
+                                        <input type="text" class="form-control" id="searchInput" placeholder="Tên sản phẩm, khách hàng...">
                                         <button class="btn btn-primary" type="button" id="btnSearch">
                                             <i class="ti ti-search"></i>
                                         </button>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="form-label">Trạng thái</label>
-                                    <select class="form-select" id="filterStatus">
+                                    <label class="form-label">Số sao</label>
+                                    <select class="form-select" id="starFilter">
                                         <option value="">Tất cả</option>
-                                        <option value="Hoạt động">Hoạt động</option>
-                                        <option value="Ngưng hoạt động">Ngưng hoạt động</option>
+                                        <option value="5">5 sao</option>
+                                        <option value="4">4 sao</option>
+                                        <option value="3">3 sao</option>
+                                        <option value="2">2 sao</option>
+                                        <option value="1">1 sao</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Sắp xếp</label>
                                     <select class="form-select" id="sortBy">
-                                        <option value="id-desc">Mới nhất</option>
-                                        <option value="id-asc">Cũ nhất</option>
-                                        <option value="name-asc">Tên A-Z</option>
-                                        <option value="name-desc">Tên Z-A</option>
-                                        <option value="rank-desc">Xếp hạng cao nhất</option>
-                                        <option value="rank-asc">Xếp hạng thấp nhất</option>
+                                        <option value="date-desc">Mới nhất</option>
+                                        <option value="date-asc">Cũ nhất</option>
+                                        <option value="star-desc">Sao cao nhất</option>
+                                        <option value="star-asc">Sao thấp nhất</option>
                                     </select>
                                 </div>
                                 <div class="col-md-2">
@@ -206,28 +172,27 @@
                         </div>
                     </div>
 
-                    <!-- Customer Table -->
+                    <!-- Ratings Table -->
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">Danh sách khách hàng</h3>
+                            <h3 class="card-title">Danh sách đánh giá</h3>
                         </div>
                         <div class="table-responsive">
                             <table class="table card-table table-vcenter">
                                 <thead>
                                     <tr>
                                         <th width="80">ID</th>
+                                        <th>Sản phẩm</th>
                                         <th>Khách hàng</th>
-                                        <th>Số điện thoại</th>
-                                        <th width="120">Xếp hạng</th>
-                                        <th width="150">Hành vi</th>
-                                        <th width="120">Trạng thái</th>
-                                        <th width="150">Đăng nhập gần nhất</th>
-                                        <th width="150" class="text-end">Thao tác</th>
+                                        <th width="120">Đánh giá</th>
+                                        <th>Nội dung</th>
+                                        <th width="150">Ngày đánh giá</th>
+                                        <th width="120" class="text-end">Thao tác</th>
                                     </tr>
                                 </thead>
-                                <tbody id="customerTableBody">
+                                <tbody id="ratingsTableBody">
                                     <tr>
-                                        <td colspan="8" class="text-center">
+                                        <td colspan="7" class="text-center">
                                             <div class="spinner-border" role="status">
                                                 <span class="visually-hidden">Đang tải...</span>
                                             </div>
@@ -237,10 +202,25 @@
                             </table>
                         </div>
                         <div class="card-footer d-flex align-items-center">
-                            <p class="m-0 text-muted">Hiển thị <span id="showingFrom">0</span> đến <span id="showingTo">0</span> trong tổng số <span id="totalRecords">0</span> khách hàng</p>
+                            <p class="m-0 text-muted">Hiển thị <span id="showingFrom">0</span> đến <span id="showingTo">0</span> trong tổng số <span id="totalRecords">0</span> đánh giá</p>
                             <ul class="pagination m-0 ms-auto" id="pagination"></ul>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rating Detail Modal -->
+    <div class="modal modal-blur fade" id="ratingDetailModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Chi tiết đánh giá</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="ratingDetailContent">
+                    <!-- Rating details will be loaded here -->
                 </div>
             </div>
         </div>
@@ -253,11 +233,11 @@
     <script type="module">
         import { mountAdminSidebar } from '../../components/AdminSidebar.js';
         document.addEventListener('DOMContentLoaded', () => {
-            mountAdminSidebar('.mount-admin-sidebar', 'admin-customers');
+            mountAdminSidebar('.mount-admin-sidebar', 'admin-ratings');
         });
     </script>
 
-    <!-- Customer Management Script -->
-    <script type="module" src="./admin_customers.js"></script>
+    <!-- Rating Management Script -->
+    <script type="module" src="./admin_ratings.js"></script>
 </body>
 </html>
