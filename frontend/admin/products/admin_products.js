@@ -267,7 +267,7 @@ ready(async () => {
       // 1. Xử lý danh mục mới (nếu có)
       if (data.newCategory) {
         const body = { name: data.newCategory, description: '' };
-        const res = await http.post('http://localhost:8000/categories', body); // Dùng http service
+        const res = await http.post('http://localhost/btl-db/backend/categories', body); // Dùng http service
         if (res && res.id) {
           data.category = res.id;
         } else {

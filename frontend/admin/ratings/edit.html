@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thêm/Sửa đánh giá - NEMTHUNG Admin</title>
+
+    <!-- Tabler CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet"/>
+
+    <!-- FINAL FIXED SIDEBAR CSS -->
+    <link rel="stylesheet" href="../fixed-sidebar.css?v=1">
+    
+    <style>
+        .star-rating {
+            direction: ltr;
+            display: inline-block;
+        }
+        
+        .star-rating input {
+            display: none;
+        }
+        
+        .star-rating label {
+            color: #ddd;
+            font-size: 1.5rem;
+            cursor: pointer;
+            margin-right: 2px;
+            transition: color 0.2s;
+        }
+        
+        .star-rating input:checked ~ label,
+        .star-rating label:hover,
+        .star-rating label:hover ~ label {
+            color: #ffc107;
+        }
+        
+        .star-rating label:hover ~ label {
+            color: #ddd;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <!-- Sidebar -->
+        <div class="mount-admin-sidebar"></div>
+
+        <!-- Main Content -->
+        <div class="page-wrapper">
+            <!-- Page header -->
+            <div class="page-header d-print-none">
+                <div class="container-xl">
+                    <div class="row g-2 align-items-center">
+                        <div class="col">
+                            <h2 class="page-title" id="pageTitle">Thêm đánh giá mới</h2>
+                            <div class="text-muted mt-1">Điền thông tin đánh giá vào form bên dưới</div>
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-outline-secondary" onclick="window.location.href='./index.html'">
+                                <i class="ti ti-arrow-left"></i> Quay lại
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page body -->
+            <div class="page-body">
+                <div class="container-xl">
+                    <form id="ratingForm">
+                        <div class="row">
+                            <!-- Main Information -->
+                            <div class="col-lg-8">
+                                <div class="card mb-3">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Thông tin đánh giá</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label required">Khách hàng</label>
+                                                <select class="form-select" id="customer_id" name="customer_id" required>
+                                                    <option value="">Chọn khách hàng</option>
+                                                </select>
+                                                <div class="invalid-feedback">Vui lòng chọn khách hàng</div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label required">Sản phẩm</label>
+                                                <select class="form-select" id="product_id" name="product_id" required>
+                                                    <option value="">Chọn sản phẩm</option>
+                                                </select>
+                                                <div class="invalid-feedback">Vui lòng chọn sản phẩm</div>
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label required">Đánh giá</label>
+                                                <div class="star-rating">
+                                                    <input type="radio" id="star5" name="star" value="5" required>
+                                                    <label for="star5"><i class="ti ti-star-filled"></i></label>
+                                                    <input type="radio" id="star4" name="star" value="4">
+                                                    <label for="star4"><i class="ti ti-star-filled"></i></label>
+                                                    <input type="radio" id="star3" name="star" value="3">
+                                                    <label for="star3"><i class="ti ti-star-filled"></i></label>
+                                                    <input type="radio" id="star2" name="star" value="2">
+                                                    <label for="star2"><i class="ti ti-star-filled"></i></label>
+                                                    <input type="radio" id="star1" name="star" value="1">
+                                                    <label for="star1"><i class="ti ti-star-filled"></i></label>
+                                                </div>
+                                                <div class="invalid-feedback">Vui lòng chọn số sao đánh giá</div>
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label required">Nội dung đánh giá</label>
+                                                <textarea class="form-control" id="comment_content" name="comment_content" rows="5" required 
+                                                          placeholder="Nhập nội dung đánh giá của khách hàng..."></textarea>
+                                                <div class="invalid-feedback">Vui lòng nhập nội dung đánh giá</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="col-lg-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Thao tác</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-2">
+                                            <div class="col-12">
+                                                <button type="submit" class="btn btn-primary w-100" id="btnSave">
+                                                    <i class="ti ti-device-floppy"></i> Lưu đánh giá
+                                                </button>
+                                            </div>
+                                            <div class="col-6" id="viewDetailSection" style="display: none;">
+                                                <button type="button" class="btn btn-outline-info w-100" id="btnViewDetail">
+                                                    <i class="ti ti-eye"></i> Xem chi tiết
+                                                </button>
+                                            </div>
+                                            <div class="col-6" id="cancelSection1">
+                                                <button type="button" class="btn btn-outline-secondary w-100" onclick="window.location.href='./index.html'">
+                                                    <i class="ti ti-x"></i> Hủy bỏ
+                                                </button>
+                                            </div>
+                                            <div class="col-12" id="cancelSection2" style="display: none;">
+                                                <button type="button" class="btn btn-outline-secondary w-100" onclick="window.location.href='./index.html'">
+                                                    <i class="ti ti-x"></i> Hủy bỏ
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Current Info (only in edit mode) -->
+                                <div class="card mt-3" id="currentInfoCard" style="display: none;">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Thông tin hiện tại</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-2">
+                                            <div class="col-sm-5 fw-bold">ID:</div>
+                                            <div class="col-sm-7" id="currentId">-</div>
+                                            <div class="col-sm-5 fw-bold">Ngày tạo:</div>
+                                            <div class="col-sm-7" id="currentDate">-</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabler JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/js/tabler.min.js"></script>
+    
+    <!-- Load AdminSidebar -->
+    <script type="module">
+        import { mountAdminSidebar } from '../../components/AdminSidebar.js';
+        document.addEventListener('DOMContentLoaded', () => {
+            mountAdminSidebar('.mount-admin-sidebar', 'admin-ratings');
+        });
+    </script>
+
+    <!-- Rating Edit Script -->
+    <script type="module" src="./admin_ratings_edit.js"></script>
+</body>
+</html>
