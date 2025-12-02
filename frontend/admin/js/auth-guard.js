@@ -17,7 +17,7 @@
         const user = JSON.parse(adminUserStr);
         
         // Check if user is admin
-        if (user.role !== 'Quản trị viên') {
+        if (user.role !== 'Quản trị viên' && user.role !== 'Nhân viên kho') {
             alert('Bạn không có quyền truy cập trang này');
             localStorage.removeItem('admin_user');
             localStorage.removeItem('admin_token');
