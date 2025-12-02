@@ -1,6 +1,6 @@
 import { updateCartCounter } from "../js/updateCartCounter.js";
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = 'http://localhost/btl-db/backend';
 
 async function fetchUser(userId) {
   if (!userId) return null;

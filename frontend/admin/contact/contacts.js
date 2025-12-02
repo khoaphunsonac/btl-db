@@ -2,7 +2,7 @@
 
 import { showToast } from '../utils/toast.js';
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = 'http://localhost/btl-db/backend';
 
 let currentPage = 1;
 let currentStatus = '';
@@ -12,7 +12,7 @@ let selectedContactId = null;
 // Load statistics
 async function loadStats() {
     try {
-        const response = await fetch(`${API_BASE}/contacts/stats`);
+        const response = await fetch(`${API_BASE}/api/contacts/stats`);
         const result = await response.json();
         
         if (result.success) {
@@ -54,7 +54,7 @@ async function loadContacts(page = 1) {
             params.append('search', currentSearch);
         }
 
-        const response = await fetch(`${API_BASE}/contacts?${params.toString()}`);
+        const response = await fetch(`${API_BASE}/api/contacts?${params.toString()}`);
         const result = await response.json();
 
         if (!result.success) {
@@ -191,7 +191,7 @@ function displayPagination(pagination) {
 // View contact detail
 async function viewContact(id) {
     try {
-        const response = await fetch(`${API_BASE}/contacts/${id}`);
+        const response = await fetch(`${API_BASE}/api/contacts/${id}`);
         const result = await response.json();
 
         if (!result.success) {
@@ -234,7 +234,7 @@ async function viewContact(id) {
 // Mark as read
 async function markAsRead(id, reload = true) {
     try {
-        const response = await fetch(`${API_BASE}/contacts/${id}`, {
+        const response = await fetch(`${API_BASE}/api/contacts/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -266,7 +266,7 @@ async function markAsReplied() {
     if (!selectedContactId) return;
 
     try {
-        const response = await fetch(`${API_BASE}/contacts/${selectedContactId}`, {
+        const response = await fetch(`${API_BASE}/api/contacts/${selectedContactId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -299,7 +299,7 @@ async function markAsReplied() {
 // Delete contact
 async function deleteContact(id) {
     try {
-        const response = await fetch(`${API_BASE}/contacts/${id}`, {
+        const response = await fetch(`${API_BASE}/api/contacts/${id}`, {
             method: 'DELETE'
         });
 
