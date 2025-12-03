@@ -1,7 +1,7 @@
 import { showToast } from '../utils/toast.js';
 
 (function(){
-  const API_BASE = window.__ENV__?.API_BASE || 'http://localhost:8000';
+  const API_BASE = window.__ENV__?.API_BASE || 'http://localhost/btl-db/backend';
 
   function qs(sel){return document.querySelector(sel)}
 

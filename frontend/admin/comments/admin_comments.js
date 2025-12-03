@@ -2,7 +2,7 @@
 import { showToast } from '../utils/toast.js';
 
 // Using PHP built-in server on port 8000
-const API_BASE = 'http://localhost:8000';
+const API_BASE = 'http://localhost/btl-db/backend';
 
 let currentPage = 1;
 let currentType = '';

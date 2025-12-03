@@ -1,6 +1,6 @@
 import { showToast } from '../utils/toast.js';
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = 'http://localhost/btl-db/backend';
 
 let editor = null;
 let users = [];

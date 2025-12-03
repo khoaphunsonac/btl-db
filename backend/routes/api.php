@@ -187,13 +187,40 @@ function handleRoute($db) {
                 // ============ RATING ROUTES ============
                 case 'ratings':
                     $controller = new RatingController($pdo);
-                    if ($method === 'GET' && $id) {
+                    
+                    // GET /api/ratings/stats
+                    if ($method === 'GET' && $id === 'stats') {
+                        $controller->stats();
+                    }
+                    // GET /api/ratings/customers
+                    elseif ($method === 'GET' && $id === 'customers') {
+                        $controller->getCustomers();
+                    }
+                    // GET /api/ratings/products
+                    elseif ($method === 'GET' && $id === 'products') {
+                        $controller->getProducts();
+                    }
+                    // GET /api/ratings
+                    elseif ($method === 'GET' && !$id) {
+                        $controller->index();
+                    }
+                    // POST /api/ratings
+                    elseif ($method === 'POST' && !$id) {
+                        $controller->store();
+                    }
+                    // GET /api/ratings/{id}
+                    elseif ($method === 'GET' && $id) {
                         $controller->show($id);
-                    } elseif ($method === 'PUT' && $id) {
+                    }
+                    // PUT /api/ratings/{id}
+                    elseif ($method === 'PUT' && $id) {
                         $controller->update($id);
-                    } elseif ($method === 'DELETE' && $id) {
+                    }
+                    // DELETE /api/ratings/{id}
+                    elseif ($method === 'DELETE' && $id) {
                         $controller->delete($id);
-                    } else {
+                    }
+                    else {
                         http_response_code(404);
                         echo json_encode(['success' => false, 'message' => 'Endpoint not found']);
                     }
@@ -202,13 +229,17 @@ function handleRoute($db) {
                 // ============ CONTACT ROUTES ============
                 case 'contacts':
                     $controller = new ContactController($pdo);
-                    if ($method === 'GET' && !$id) {
+                    if ($method === 'GET' && $id === 'stats') {
+                        $controller->stats();
+                    } elseif ($method === 'GET' && !$id) {
                         $controller->index();
-                    } elseif ($method === 'GET' && $id) {
+                    } elseif ($method === 'GET' && $id && $id !== 'stats') {
                         $controller->show($id);
                     } elseif ($method === 'POST' && !$id) {
                         $controller->store();
                     } elseif ($method === 'PUT' && $id && $action === 'status') {
+                        $controller->updateStatus($id);
+                    } elseif ($method === 'PUT' && $id && !$action) {
                         $controller->updateStatus($id);
                     } elseif ($method === 'DELETE' && $id) {
                         $controller->delete($id);

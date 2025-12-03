@@ -9,6 +9,17 @@ class ContactController {
     }
     
     /**
+     * GET /api/contacts/stats
+     * Lấy thống kê liên hệ (Admin)
+     */
+    public function stats() {
+        $stats = $this->contactModel->getStats();
+        
+        http_response_code(200);
+        echo json_encode(['success' => true, 'data' => $stats]);
+    }
+    
+    /**
      * GET /api/contacts
      * Lấy danh sách yêu cầu liên hệ (Admin)
      */
@@ -77,7 +88,6 @@ class ContactController {
     public function updateStatus($id) {
         $data = json_decode(file_get_contents("php://input"), true);
         $status = $data['status'] ?? null;
-        $response = $data['response'] ?? null;
         
         if (!$status) {
             http_response_code(400);
@@ -92,7 +102,7 @@ class ContactController {
             return;
         }
         
-        $result = $this->contactModel->updateStatus($id, $status, $response);
+        $result = $this->contactModel->updateStatus($id, $status);
         
         if ($result) {
             http_response_code(200);
@@ -125,20 +135,13 @@ class ContactController {
     private function validateContact($data) {
         $errors = [];
         
-        if (empty($data['name'])) {
-            $errors['name'] = 'Tên không được để trống';
-        }
-        
-        if (empty($data['email']) || !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-            $errors['email'] = 'Email không hợp lệ';
-        }
-        
-        if (empty($data['subject'])) {
-            $errors['subject'] = 'Tiêu đề không được để trống';
-        }
-        
-        if (empty($data['message'])) {
+        if (empty($data['content']) && empty($data['message'])) {
             $errors['message'] = 'Nội dung không được để trống';
+        }
+        
+        // Optional validation for customer_id
+        if (isset($data['customer_id']) && !is_numeric($data['customer_id'])) {
+            $errors['customer_id'] = 'ID khách hàng không hợp lệ';
         }
         
         return $errors;

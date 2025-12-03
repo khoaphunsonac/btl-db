@@ -1,7 +1,7 @@
 import { Popup } from "../components/PopUp.js";
 import { updateCartCounter } from "./updateCartCounter.js";
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = 'http://localhost/btl-db/backend';
 
 export async function addToCart(productId, userId = 2) {
 
