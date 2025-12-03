@@ -89,36 +89,18 @@ function handleRoute($db) {
                 // ============ PRODUCT ROUTES ============
                 case 'products':
                     $controller = new ProductController($pdo);
-                    if ($method === 'GET' && !$id) {
-                        $controller->index();
-                    } elseif ($method === 'GET' && $id && !$action) {
-                        $controller->show($id);
-                    } elseif ($method === 'GET' && $id && $action === 'variants') {
-                        $controller->getVariants($id);
-                    } elseif ($method === 'POST' && $id && $action === 'variants') {
-                        $controller->addVariant($id);
-                    } elseif ($method === 'GET' && $id && $action === 'images') {
-                        $controller->getImages($id);
-                    } elseif ($method === 'POST' && $id && $action === 'images') {
-                        $controller->uploadImage($id);
-                    } elseif ($method === 'GET' && $id && $action === 'ratings') {
-                        $ratingController = new RatingController($pdo);
-                        $ratingController->getProductRatings($id);
-                    } elseif ($method === 'POST' && $id && $action === 'ratings') {
-                        $ratingController = new RatingController($pdo);
-                        $ratingController->storeForProduct($id);
-                    } elseif ($method === 'POST' && !$id) {
-                        $controller->store();
-                    } elseif ($method === 'PUT' && $id) {
-                        $controller->update($id);
-                    } elseif ($method === 'DELETE' && $id) {
-                        $controller->delete($id);
-                    } else {
+                
+                    if ($method === 'GET' && !$id) $controller->index();
+                    elseif ($method === 'GET' && $id && !$action) $controller->show($id);
+                    elseif ($method === 'POST' && !$id) $controller->store();
+                    elseif ($method === 'PUT' && $id) $controller->update($id);
+                    elseif ($method === 'DELETE' && $id) $controller->delete($id);
+                    else {
                         http_response_code(404);
                         echo json_encode(['success' => false, 'message' => 'Endpoint not found']);
                     }
                     break;
-                
+                                
                 // ============ CATEGORY ROUTES ============
                 case 'categories':
                     $controller = new CategoryController($pdo);
