@@ -208,7 +208,6 @@
                 showError(response.message || 'Không thể xóa sản phẩm');
             }
         } catch (err) {
-            console.error('cc');
             console.error(err);
         
             const errors = err.data?.errors;

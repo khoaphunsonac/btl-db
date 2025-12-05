@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chỉnh sửa biến thể sản phẩm - NEMTHUNG Admin</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet"/>
+  
+  <link rel="stylesheet" href="../fixed-sidebar.css?v=1">
+  <link rel="stylesheet" href="../../css/toast.css">
+</head>
+<body>
+<div class="page">
+  <div class="mount-admin-sidebar"></div>
+
+  <div class="page-wrapper">
+    <div class="page-header d-print-none">
+      <div class="container-xl">
+        <div class="row g-2 align-items-center">
+          <div class="col">
+            <h2 class="page-title" id="pageTitle">Chỉnh sửa biến thể sản phẩm</h2>
+            <div class="text-muted mt-1">Sản phẩm ID: <span id="productIdLabel"></span></div>
+          </div>
+          <div class="col-auto">
+            <button class="btn btn-outline-secondary" onclick="window.location.href = `./variants.html`">
+              <i class="ti ti-arrow-left"></i> Quay lại
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <div class="container-xl">
+        <div class="card">
+          <div class="card-header"><h3 class="card-title">Danh sách biến thể</h3></div>
+          <div class="card-body">
+            <table class="table table-bordered" id="variantsTable">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Màu</th>
+                  <th>Số lượng</th>
+                  <th>Trạng thái</th>
+                  <th>Hành động</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Row sẽ load bằng JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/js/tabler.min.js"></script>
+<script type="module" src="./admin_product_variants_edit.js"></script>
+</body>
+</html>
