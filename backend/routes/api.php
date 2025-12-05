@@ -15,6 +15,7 @@ require_once __DIR__ . '/../controllers/DiscountController.php';
 require_once __DIR__ . '/../controllers/RatingController.php';
 require_once __DIR__ . '/../controllers/ContactController.php';
 require_once __DIR__ . '/../controllers/StatisticsController.php';
+require_once __DIR__ . '/../controllers/ProductVariantController.php';
 
 function handleRoute($db) {
     // Get PDO connection from Database instance
@@ -85,6 +86,31 @@ function handleRoute($db) {
                         echo json_encode(['success' => false, 'message' => 'Endpoint not found']);
                     }
                     break;
+
+                    // ============ PRODUCT VARIANT ROUTES ============
+                    case 'product-variants':
+                        $controller = new ProductVariantController($pdo);
+
+                        if ($method === 'GET' && !$id) {
+                            // GET /api/product-variants?product_id=&page=&limit=&color=&status=&sortBy=
+                            $controller->index();
+                        } elseif ($method === 'GET' && $id && !$action) {
+                            // GET /api/product-variants/{id}
+                            $controller->show($id);
+                        } elseif ($method === 'POST' && !$id) {
+                            // POST /api/product-variants
+                            $controller->create();
+                        } elseif ($method === 'PUT' && $id && !$action) {
+                            // PUT /api/product-variants/{id}
+                            $controller->update($id);
+                        } elseif ($method === 'DELETE' && $id) {
+                            // DELETE /api/product-variants/{id}
+                            $controller->delete($id);
+                        } else {
+                            http_response_code(404);
+                            echo json_encode(['success' => false, 'message' => 'Endpoint not found']);
+                        }
+                        break;
                 
                 // ============ PRODUCT ROUTES ============
                 case 'products':

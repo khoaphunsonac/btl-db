@@ -34,7 +34,9 @@ DROP PROCEDURE IF EXISTS Update_Order_Totals;
 DROP PROCEDURE IF EXISTS Decrease_Product_Inventory;
 DROP PROCEDURE IF EXISTS Increase_Product_Inventory;
 DROP PROCEDURE IF EXISTS change_status_product;
-
+DROP PROCEDURE IF EXISTS insert_product_safe;
+DROP PROCEDURE IF EXISTS update_product_safe;
+DROP PROCEDURE IF EXISTS delete_product_safe;
 -- DROP TRIGGERS
 DROP TRIGGER IF EXISTS trg_check_disjoint_customer;
 DROP TRIGGER IF EXISTS trg_check_disjoint_admin;
@@ -55,7 +57,10 @@ DROP TRIGGER IF EXISTS Trg_Check_Review_Purchase;
 DROP TRIGGER IF EXISTS Trg_Prevent_Customer_Deletion;
 DROP TRIGGER IF EXISTS Trg_check_status_product;
 DROP TRIGGER IF EXISTS trg_check_user_totality;
-
+DROP TRIGGER IF EXISTS Trg_Rating_Delete;
+DROP TRIGGER IF EXISTS Trg_Rating_Update;
+DROP TRIGGER IF EXISTS Trg_Rating_Insert;
+DROP TRIGGER IF EXISTS trg_check_leaf_category_insert;
 -- DROP EVENTS
 DROP EVENT IF EXISTS Evt_Inactivate_Inactive_Users;
 
@@ -86,8 +91,11 @@ CREATE TABLE Product (
   status ENUM('Còn hàng', 'Hết hàng', 'Chưa mở bán')
     DEFAULT 'Chưa mở bán' NOT NULL,
   overall_rating_star DECIMAL(10, 2) NOT NULL DEFAULT 0.0,
-  rating_count INT NOT NULL DEFAULT 0
+  rating_count INT NOT NULL DEFAULT 0,
+  CONSTRAINT CK_cost
+	CHECK (cost_current <> cost_old)
 );
+
 
 CREATE TABLE Category (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -159,7 +167,7 @@ CREATE TABLE Product_variant (
   quantity INT NOT NULL 
     CHECK (quantity >= 0),
   color VARCHAR(150) NOT NULL,
-  status ENUM('Còn hàng', 'Hết hàng') DEFAULT 'Còn Hàng' NOT NULL,
+  status ENUM('Còn hàng', 'Hết hàng') DEFAULT 'Hết hàng' NOT NULL,
   CONSTRAINT FK_Product_variant
     FOREIGN KEY (product_id)
     REFERENCES Product(id) ON DELETE CASCADE
@@ -277,7 +285,7 @@ CREATE TABLE `Order` (
 CREATE TABLE Order_status_log (
   id INT NOT NULL,
   order_id INT NOT NULL,
-  status ENUM('Chờ xử lí', 'Đang xử lí', 'Đã xác nhận', 'Hoàn thành', 'Đã hủy') DEFAULT 'Chờ xử lí' NOT NULL,
+  status ENUM('Chờ xử lí', 'Đang xử lí', 'Đã xác nhận', 'Đang giao', 'Hoàn thành', 'Đã hủy') DEFAULT 'Chờ xử lí' NOT NULL,
   time DATETIME NOT NULL,
   CONSTRAINT PK_Order_status_log
     PRIMARY KEY (id, order_id),
@@ -344,7 +352,9 @@ BEGIN
     END IF;
 END //
 DELIMITER ;
-
+-- =============================
+-- TRIGGER CHECK ERD
+-- ============================
 -- TRIGGER: Disjointness Admin
 DELIMITER //
 CREATE TRIGGER trg_check_disjoint_admin
@@ -363,8 +373,11 @@ BEGIN
     END IF;
 END //
 DELIMITER ;
+-- ================================
+-- TRIGGER CHECK OTHER DERIVED ATTRIBUTE
+-- =================================
 
--- TRIGGER: Product Variant Status (Insert)
+-- STATUS OF PRODUCT VARIANT
 DELIMITER //
 CREATE TRIGGER trg_set_product_variant_status_insert
 BEFORE INSERT ON Product_variant
@@ -393,7 +406,8 @@ BEGIN
     END IF;
 END //
 DELIMITER ;
-
+-- ==============================
+-- STATUS OF PRODUCT
 -- PROCEDURE: Update Product Status
 DELIMITER //
 CREATE PROCEDURE Update_Product_Status_Procedure(IN p_product_id INT)
@@ -444,6 +458,8 @@ BEGIN
 END //
 DELIMITER ;
 
+-- ===================================
+-- TOTAL COST OF ORDER
 -- TRIGGER: Set Order Price (Insert)
 DELIMITER //
 CREATE TRIGGER Trg_Set_Order_Price_Insert
@@ -526,8 +542,12 @@ BEGIN
     CALL Update_Order_Totals(OLD.order_id);
 END //
 DELIMITER ;
+-- =======================================
+-- SEMATIC CONSTRAINTS (TRIGGER)
+-- =======================================
 
--- EVENT: Inactivate Users
+-- ========================================
+-- SEMATIC 11
 DELIMITER //
 CREATE EVENT Evt_Inactivate_Inactive_Users
 ON SCHEDULE EVERY 1 DAY 
@@ -541,7 +561,8 @@ BEGIN
 END //
 DELIMITER ;
 
--- TRIGGER: Check Completion Status
+-- =============================================
+-- SEMATIC 3
 DELIMITER //
 CREATE TRIGGER Trg_Check_Completion_Status
 BEFORE INSERT ON Order_status_log
@@ -561,8 +582,8 @@ BEGIN
     END IF;
 END //
 DELIMITER ;
-
--- PROCEDURE: Decrease Inventory
+-- =====================================
+-- SEMATIC 5
 DELIMITER //
 CREATE PROCEDURE Decrease_Product_Inventory(IN p_order_id INT)
 BEGIN
@@ -629,7 +650,8 @@ BEGIN
 END //
 DELIMITER ;
 
--- PROCEDURE: Increase Inventory
+-- ======================================
+-- SEMATIC 6
 DELIMITER //
 CREATE PROCEDURE Increase_Product_Inventory(IN p_order_id INT)
 BEGIN
@@ -662,7 +684,6 @@ BEGIN
 END //
 DELIMITER ;
 
--- TRIGGER: Increase Inventory
 DELIMITER //
 CREATE TRIGGER Trg_Increase_Inventory
 AFTER INSERT ON Order_status_log
@@ -685,43 +706,8 @@ BEGIN
 END //
 DELIMITER ;
 
--- TRIGGER: Check Review Purchase
-DELIMITER //
-CREATE TRIGGER Trg_Check_Review_Purchase
-BEFORE INSERT ON Rating
-FOR EACH ROW
-BEGIN
-    DECLARE v_is_purchased_successfully INT DEFAULT 0;
-
-    SELECT 
-        COUNT(DISTINCT od.order_id)
-    INTO 
-        v_is_purchased_successfully
-    FROM 
-        Order_detail od
-    JOIN 
-        `Order` o ON od.order_id = o.id
-    WHERE 
-        o.customer_id = NEW.customer_id 
-        AND od.product_variant_id IN (
-            SELECT id FROM Product_variant WHERE product_id = NEW.product_id
-        )
-        AND EXISTS (
-            SELECT 1 
-            FROM Order_status_log osl
-            WHERE osl.order_id = o.id 
-            AND osl.status = 'Hoàn thành'
-        )
-        LIMIT 1; 
-
-    IF v_is_purchased_successfully = 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Ràng buộc đánh giá: Khách hàng chỉ được phép đánh giá sản phẩm sau khi đã mua sản phẩm đó thành công.';
-    END IF;
-END //
-DELIMITER ;
-
--- TRIGGER: Prevent Customer Deletion
+-- ===============================
+-- SEMATIC 7
 DELIMITER //
 CREATE TRIGGER Trg_Prevent_Customer_Deletion
 BEFORE DELETE ON Customer
@@ -754,27 +740,615 @@ BEGIN
     END IF;
 END //
 DELIMITER ;
+-- ========================================
+-- SEMATIC 8
+DELIMITER //
 
--- TRIGGER: Check Status Product (CORRECTED)
--- Changed to BEFORE INSERT and removed logic that tries to read from children
+CREATE TRIGGER trg_check_leaf_category_insert
+BEFORE INSERT ON Product_categorize
+FOR EACH ROW
+BEGIN
+    DECLARE child_count INT;
+    
+    -- Kiểm tra xem danh mục được chọn có danh mục con nào không
+    SELECT COUNT(*) INTO child_count
+    FROM Category
+    WHERE parent_id = NEW.category_id;
+
+    -- Nếu có con (> 0), nghĩa là đây là danh mục cha/gốc -> Báo lỗi
+    IF child_count > 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Ràng buộc danh mục: Sản phẩm chỉ được phép gán vào danh mục lá (danh mục chi tiết nhất, không có danh mục con).';
+    END IF;
+END //
+
+
+CREATE TRIGGER trg_check_leaf_category_update
+BEFORE UPDATE ON Product_categorize
+FOR EACH ROW
+BEGIN
+    DECLARE child_count INT;
+    
+    IF NEW.category_id <> OLD.category_id THEN
+        SELECT COUNT(*) INTO child_count
+        FROM Category
+        WHERE parent_id = NEW.category_id;
+
+        IF child_count > 0 THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Ràng buộc danh mục: Sản phẩm chỉ được phép gán vào danh mục lá (danh mục chi tiết nhất, không có danh mục con).';
+        END IF;
+    END IF;
+END //
+
+DELIMITER ;
+
+-- =========================================
+-- OTHER TRIGGER
+-- =========================================
+-- TRIGGER: Check Status Product
 DELIMITER //
 CREATE TRIGGER Trg_check_status_product
 BEFORE INSERT ON Product
 FOR EACH ROW
 BEGIN
-    -- When a product is first created, it has NO variants.
-    -- Therefore, we default it to 'Chưa mở bán' if it tries to be 'Còn hàng'.
-    DECLARE have_Product_variant INT DEFAULT 0;
-    
-    -- NOTE: In an INSERT trigger for Product, count of variants is ALWAYS 0.
     IF NEW.status = 'Còn hàng' THEN
         SET NEW.status = 'Chưa mở bán';
     END IF;
 END //
 DELIMITER ;
 
+-- ======================================
+-- 2.1 PROCEDURE INSERT/UPDATE/DELETE product table
+-- =======================================
+-- INSERT
+DELIMITER $$
+CREATE PROCEDURE insert_product_safe(
+    IN p_name VARCHAR(255),
+    IN p_trademark VARCHAR(255),
+    IN p_cost_current DECIMAL(10, 2),
+    IN p_cost_old DECIMAL(10, 2),
+    IN p_description VARCHAR(255),
+    IN p_status ENUM('Còn hàng', 'Hết hàng', 'Chưa mở bán')
+)
+BEGIN
+	DECLARE unq_name INT;
+    SELECT COUNT(*) 
+    INTO unq_name
+    FROM product p 
+    WHERE p.name = p_name;
+    
+    IF unq_name > 0 THEN
+		SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Không thể thêm sản phẩm: Tên của sản phẩm không được trùng';
+	END IF;
+    
+	IF p_name IS NULL THEN
+		SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Không thể thêm sản phẩm: Tên của sản phẩm không được bỏ trống';
+	END IF;
+    IF p_trademark IS NULL THEN
+		SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Không thể thêm sản phẩm: Tên nhãn hiệu của sản phẩm không được bỏ trống';
+	END IF;
+    
+	IF p_cost_current IS NULL THEN
+		SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Không thể thêm sản phẩm: Giá mới của sản phẩm không được bỏ trống';
+	END IF;
+    IF p_cost_current <= 0 THEN
+		SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Không thể thêm sản phẩm: Giá mới của sản phẩm phải là số dương';
+	END IF;
+	IF p_cost_old IS NOT NULL THEN
+		SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Không thể thêm sản phẩm: Giá cũ của sản phẩm khi mới thêm phải NULL';
+	END IF;
+	IF p_description IS NULL THEN
+		SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Không thể thêm sản phẩm: Mô tả của sản phẩm không được bỏ trống';
+	END IF;
+	IF p_status = 'Còn hàng' OR p_status = 'Hết hàng' THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Không thể thêm sản phẩm: Trạng thái khi thêm vào của sản phẩm mặc định là Chưa mở bán';
+    END IF;
+    
+	INSERT INTO Product (name, trademark, cost_current, cost_old, description, status)
+    VALUES (p_name, p_trademark, p_cost_current, p_cost_old, p_description, p_status);
+END $$
+DELIMITER;
+
+-- UPDATE
+DELIMITER $$
+CREATE PROCEDURE update_product_safe(
+    IN p_id INT,
+    IN p_name VARCHAR(255),
+    IN p_trademark VARCHAR(255),
+    IN p_cost_current DECIMAL(10, 2),
+    IN p_description VARCHAR(255),
+    IN p_status ENUM('Còn hàng', 'Hết hàng', 'Chưa mở bán')
+)
+BEGIN
+    DECLARE v_count INT;
+    DECLARE v_variant_count INT;
+    DECLARE v_old_cost DECIMAL(10,2);
+    DECLARE v_old_name VARCHAR(255);
+    DECLARE v_old_status ENUM('Còn hàng', 'Hết hàng', 'Chưa mở bán');
+
+    -- 1. Sản phẩm tồn tại
+    SELECT COUNT(*) INTO v_count FROM Product WHERE id = p_id;
+    IF v_count = 0 THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Không thể cập nhật: Không tìm thấy sản phẩm.';
+    END IF;
+
+    -- Lấy dữ liệu cũ
+    SELECT cost_current, name, status INTO 
+        v_old_cost, v_old_name, v_old_status
+    FROM Product WHERE id = p_id;
+
+    -- 2. Validate trùng tên
+    SELECT COUNT(*) INTO v_count 
+    FROM Product 
+    WHERE name = p_name AND id <> p_id;
+
+    IF v_count > 0 THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Không thể cập nhật: Tên sản phẩm mới bị trùng.';
+    END IF;
+
+    -- 2b. Cấm đổi tên nếu đã có đơn hàng
+    IF p_name <> v_old_name THEN
+        SELECT COUNT(*) INTO v_count
+        FROM Order_detail od
+        JOIN Product_variant pv ON od.product_variant_id = pv.id
+        WHERE pv.product_id = p_id;
+
+        IF v_count > 0 THEN
+            SIGNAL SQLSTATE '45000'
+                SET MESSAGE_TEXT = 'Không thể cập nhật: Sản phẩm đã từng bán nên không thể đổi tên.';
+        END IF;
+    END IF;
+
+    -- 2c. Không cho đổi trạng thái
+    IF p_status <> v_old_status THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Không thể cập nhật: Không được phép thay đổi trạng thái sản phẩm.';
+    END IF;
+
+    -- 3. Validate giá tiền
+    IF p_cost_current <= 0 THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Không thể cập nhật: Giá mới phải > 0.';
+    END IF;
+
+    -- Giá mới phải khác giá cũ
+    IF p_cost_current = v_old_cost THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Không thể cập nhật: Giá mới phải khác giá cũ.';
+    END IF;
+
+    -- 4. Update (không update status)
+    UPDATE Product
+    SET 
+        name = p_name,
+        trademark = p_trademark,
+        cost_old = v_old_cost,
+        cost_current = p_cost_current,
+        description = p_description
+    WHERE id = p_id;
+
+END $$
+DELIMITER ;
+
+
+-- DELETE
+
+DELIMITER $$
+
+CREATE PROCEDURE delete_product_safe(IN p_id INT)
+BEGIN
+    DECLARE count_ref INT DEFAULT 0;
+
+    -- 1. Kiểm tra Product Variant
+    SELECT COUNT(*)
+    INTO count_ref
+    FROM Product_variant
+    WHERE product_id = p_id;
+
+    IF count_ref > 0 THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Không thể xoá: Sản phẩm vẫn còn biến thể (Product_variant).';
+    END IF;
+
+    -- 2. Kiểm tra Order_detail → chỉ cần product đã từng có order là KHÔNG được xoá
+    SELECT COUNT(*)
+    INTO count_ref
+    FROM Order_detail od
+    JOIN Product_variant pv ON od.product_variant_id = pv.id
+    WHERE pv.product_id = p_id;
+
+    IF count_ref > 0 THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Không thể xoá: Sản phẩm đã từng được đặt hàng.';
+    END IF;
+
+    -- 3. Kiểm tra categorize
+    SELECT COUNT(*)
+    INTO count_ref
+    FROM Product_categorize
+    WHERE product_id = p_id;
+
+    IF count_ref > 0 THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Không thể xoá: Sản phẩm còn thuộc danh mục.';
+    END IF;
+
+    -- 4. Nếu không còn ràng buộc → XÓA
+    DELETE FROM Product WHERE id = p_id;
+
+END $$
+
+DELIMITER ;
+
+-- ======================================
+-- 2.2.1 BUSSINESS 
+-- ======================================
+
+-- TRIGGER: CHECK IF CUSTOMER ALREADY BUY BEFORE RATING
+DELIMITER //
+CREATE TRIGGER Trg_Check_Review_Purchase
+BEFORE INSERT ON Rating
+FOR EACH ROW
+BEGIN
+    DECLARE v_is_purchased_successfully INT DEFAULT 0;
+
+    SELECT 
+        COUNT(DISTINCT od.order_id)
+    INTO 
+        v_is_purchased_successfully
+    FROM 
+        Order_detail od
+    JOIN 
+		-- Get customer id
+        `Order` o ON od.order_id = o.id 
+    WHERE 
+        o.customer_id = NEW.customer_id 
+        -- Check if the customer rating at exact product's product_variant
+        AND od.product_variant_id IN (
+            SELECT id FROM Product_variant WHERE product_id = NEW.product_id
+        )
+        -- Exists 1 record that have status 'Hoàn thành'
+        AND EXISTS (
+            SELECT 1 
+            FROM Order_status_log osl
+            WHERE osl.order_id = o.id 
+            AND osl.status = 'Hoàn thành'
+        )
+        LIMIT 1; 
+
+    IF v_is_purchased_successfully = 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Ràng buộc đánh giá: Khách hàng chỉ được phép đánh giá sản phẩm sau khi đã mua sản phẩm đó thành công.';
+    END IF;
+END //
+DELIMITER ;
+
+-- ======================================
+-- 2.2.2 DERIVED ATTRIBUTE  
+-- ======================================
+-- CALCULATE OVERALL RATING STAR
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS Update_Rating_Incremental$$
+
+CREATE PROCEDURE Update_Rating_Incremental(
+    IN p_product_id INT,
+    IN p_new_star INT,
+    IN p_old_star INT,
+    IN p_action VARCHAR(10)
+)
+BEGIN
+    -- INSERT
+    IF p_action = 'INSERT' THEN
+        UPDATE Product
+        SET
+            overall_rating_star = ((COALESCE(overall_rating_star,0) * rating_count) + p_new_star) / (rating_count + 1),
+            rating_count = rating_count + 1
+        WHERE id = p_product_id;
+
+    -- UPDATE
+    ELSEIF p_action = 'UPDATE' THEN
+        IF p_new_star <> p_old_star THEN
+            UPDATE Product
+            SET
+                overall_rating_star = CASE
+                    WHEN rating_count > 0 THEN
+                        ((COALESCE(overall_rating_star,0) * rating_count) - p_old_star + p_new_star) / rating_count
+                    ELSE
+                        p_new_star
+                END
+            WHERE id = p_product_id;
+        END IF;
+
+    -- DELETE
+    ELSEIF p_action = 'DELETE' THEN
+        UPDATE Product
+        SET
+            overall_rating_star = CASE
+                WHEN rating_count > 1 THEN ((COALESCE(overall_rating_star,0) * rating_count) - p_old_star) / (rating_count - 1)
+                ELSE 0
+            END,
+            rating_count = GREATEST(rating_count - 1, 0)
+        WHERE id = p_product_id;
+    END IF;
+END$$
+
+DELIMITER ;
+
+
+DELIMITER //
+
+DROP TRIGGER IF EXISTS Trg_Rating_Insert//
+CREATE TRIGGER Trg_Rating_Insert
+AFTER INSERT ON Rating
+FOR EACH ROW
+BEGIN
+    CALL Update_Rating_Incremental(
+        NEW.product_id,
+        NEW.star,
+        0,
+        'INSERT'
+    );
+END//
+
+DROP TRIGGER IF EXISTS Trg_Rating_Update//
+CREATE TRIGGER Trg_Rating_Update
+AFTER UPDATE ON Rating
+FOR EACH ROW
+BEGIN
+    CALL Update_Rating_Incremental(
+        NEW.product_id,
+        NEW.star,
+        OLD.star,
+        'UPDATE'
+    );
+END//
+
+DROP TRIGGER IF EXISTS Trg_Rating_Delete//
+CREATE TRIGGER Trg_Rating_Delete
+AFTER DELETE ON Rating
+FOR EACH ROW
+BEGIN
+    CALL Update_Rating_Incremental(
+        OLD.product_id,
+        0,
+        OLD.star,
+        'DELETE'
+    );
+END//
+
+DELIMITER ;
+-- ======================================
+-- 2.3 DERIVED ATTRIBUTE  
+-- ======================================
+-- Lấy trạng thái mới nhất của từng đơn hàng trong khoảng thời gian.
+DELIMITER $$
+
+CREATE PROCEDURE sp_getLatestOrderStatus
+(
+    IN p_startDate DATETIME,
+    IN p_endDate   DATETIME
+)
+BEGIN
+    SELECT 
+        o.id AS order_id,
+        o.customer_id,
+        o.address,
+        o.date,
+        osl.status AS latest_status,
+        osl.time AS status_time
+    FROM `Order` o
+    JOIN Order_status_log osl 
+        ON osl.order_id = o.id
+    WHERE osl.time = (
+        SELECT MAX(time)
+        FROM Order_status_log
+        WHERE order_id = o.id
+    )
+    AND o.date BETWEEN p_startDate AND p_endDate
+    ORDER BY osl.time DESC;
+END $$
+
+DELIMITER ;
+
+
+-- Tính số lượng product bán ra trung bình hàng tháng.
+DELIMITER $$
+
+CREATE PROCEDURE sp_avgMonthlySalesCompletedProducts
+(
+    IN p_year INT
+)
+BEGIN
+    -- Tính số tháng để chia
+    DECLARE months_passed INT;
+    
+    IF p_year < YEAR(CURDATE()) THEN
+        SET months_passed = 12; -- Năm trước → đủ 12 tháng
+    ELSE
+        SET months_passed = MONTH(CURDATE()); -- Năm hiện tại → tính đến tháng hiện tại
+    END IF;
+    
+    SELECT 
+        p.name AS product_name,
+        COALESCE(SUM(od.quantity) / months_passed, 0) AS avg_quantity_per_month
+    FROM Product p
+    LEFT JOIN Product_variant pv ON pv.product_id = p.id
+    LEFT JOIN Order_detail od 
+           ON od.product_variant_id = pv.id
+    LEFT JOIN `Order` o 
+           ON od.order_id = o.id
+    LEFT JOIN Order_status_log osl 
+           ON osl.order_id = o.id 
+           AND osl.time = (SELECT MAX(time) 
+                           FROM Order_status_log 
+                           WHERE order_id = o.id)
+    WHERE osl.status = 'Hoàn thành' OR osl.status IS NULL
+      AND (YEAR(o.date) = p_year OR o.date IS NULL)
+    GROUP BY p.id, p.name
+    ORDER BY avg_quantity_per_month DESC;
+END $$
+
+DELIMITER ;
+
+-- ======================================
+-- 2.4 DERIVED ATTRIBUTE  
+-- ======================================
+
+-- ======================================
+-- RANKING CUSTOMER
+DELIMITER //
+
+DROP FUNCTION IF EXISTS Func_XepHangKhachHang //
+
+CREATE FUNCTION Func_XepHangKhachHang(p_customer_id INT) 
+RETURNS VARCHAR(50)
+DETERMINISTIC
+READS SQL DATA
+BEGIN
+    -- Khai báo biến
+    DECLARE v_total_spent DECIMAL(15, 2) DEFAULT 0;
+    DECLARE v_order_value DECIMAL(15, 2) DEFAULT 0;
+    DECLARE v_rank VARCHAR(50);
+    DECLARE v_customer_exists INT;
+    DECLARE done INT DEFAULT FALSE;
+
+    -- 1. Kiểm tra tham số đầu vào (Khách hàng có tồn tại trong bảng Customer không)
+    SELECT COUNT(*) INTO v_customer_exists 
+    FROM Customer 
+    WHERE id = p_customer_id;
+
+    IF v_customer_exists = 0 THEN
+        RETURN 'Lỗi: Khách hàng không tồn tại';
+    END IF;
+
+    -- 2. Khai báo Con trỏ (Cursor) lấy các đơn đã thanh toán của khách
+    BEGIN
+        DECLARE cur_orders CURSOR FOR 
+            SELECT total_cost 
+            FROM `Order` 
+            WHERE customer_id = p_customer_id 
+            AND payment_status = 'Đã thanh toán';
+
+        -- Khai báo handler để thoát vòng lặp
+        DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+        -- 3. Mở con trỏ và dùng vòng lặp (LOOP) để tính tổng
+        OPEN cur_orders;
+
+        read_loop: LOOP
+            FETCH cur_orders INTO v_order_value;
+            
+            IF done THEN
+                LEAVE read_loop;
+            END IF;
+            
+            -- Cộng dồn doanh thu
+            SET v_total_spent = v_total_spent + v_order_value;
+        END LOOP;
+
+        CLOSE cur_orders;
+    END;
+
+    -- 4. Sử dụng IF để phân loại hạng thành viên dựa trên tổng tiền
+    IF v_total_spent < 5000000 THEN
+        SET v_rank = 'Thành viên Mới';
+    ELSEIF v_total_spent < 20000000 THEN
+        SET v_rank = 'Thành viên Bạc';
+    ELSEIF v_total_spent < 50000000 THEN
+        SET v_rank = 'Thành viên Vàng';
+    ELSE
+        SET v_rank = 'Thành viên Kim Cương';
+    END IF;
+
+    RETURN v_rank;
+END //
+
+DELIMITER ;
+
 -- ==========================================
--- 4. INSERT DATA
+-- CUSTOMER RESEARCH
+
+DELIMITER //
+
+DROP FUNCTION IF EXISTS Func_PhanTichHanhViKhachHang //
+
+CREATE FUNCTION Func_PhanTichHanhViKhachHang(p_customer_id INT) 
+RETURNS VARCHAR(100)
+DETERMINISTIC
+READS SQL DATA
+BEGIN
+    -- Khai báo biến
+    DECLARE v_star INT;
+    DECLARE v_total_stars INT DEFAULT 0;
+    DECLARE v_count INT DEFAULT 0;
+    DECLARE v_avg_star DECIMAL(4, 2);
+    DECLARE v_behavior VARCHAR(100);
+    DECLARE v_check_exists INT;
+    DECLARE done INT DEFAULT FALSE;
+
+    -- 1. Kiểm tra đầu vào
+    SELECT COUNT(*) INTO v_check_exists FROM Customer WHERE id = p_customer_id;
+    IF v_check_exists = 0 THEN
+        RETURN 'Không tìm thấy khách hàng';
+    END IF;
+
+    -- 2. Khai báo Con trỏ lấy số sao của các đánh giá từ khách này
+    BEGIN
+        DECLARE cur_ratings CURSOR FOR 
+            SELECT star FROM Rating WHERE customer_id = p_customer_id;
+        
+        DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+        OPEN cur_ratings;
+
+        read_loop: LOOP
+            FETCH cur_ratings INTO v_star;
+            
+            IF done THEN
+                LEAVE read_loop;
+            END IF;
+
+            SET v_total_stars = v_total_stars + v_star;
+            SET v_count = v_count + 1;
+        END LOOP;
+
+        CLOSE cur_ratings;
+    END;
+
+    -- 3. Xử lý logic IF/ELSE
+    IF v_count = 0 THEN
+        SET v_behavior = 'Chưa có đánh giá nào';
+    ELSE
+        SET v_avg_star = v_total_stars / v_count;
+
+        IF v_avg_star >= 4.5 THEN
+            SET v_behavior = 'Khách hàng thân thiện (Rất hài lòng)';
+        ELSEIF v_avg_star >= 3.0 THEN
+            SET v_behavior = 'Khách hàng trung tính';
+        ELSE
+            SET v_behavior = 'Khách hàng khó tính (Cần chú ý chăm sóc)';
+        END IF;
+    END IF;
+
+    RETURN v_behavior;
+END //
+
+DELIMITER ;
+
+-- ==========================================
+-- INSERT DATA
 -- ==========================================
 
 -- Account
@@ -793,13 +1367,18 @@ INSERT INTO User_Account (id, email, password, status) VALUES
 (12, 'huyenmy@gmail.com', 'Huyen5555', 'Hoạt động'),    
 (13, 'vietanh@gmail.com', 'VietAnh66', 'Hoạt động'),    
 (14, 'phuonglinh@gmail.com', 'Linh77777', 'Hoạt động'),  
-(15, 'baotran@gmail.com', 'BaoTran888', 'Hoạt động');   
+(15, 'baotran@gmail.com', 'BaoTran888', 'Hoạt động'),
+(16, 'admin2.gear@shop.vn', 'Admin123', 'Hoạt động'), 
+(17, 'admin3.gear@shop.vn', 'Admin123', 'Hoạt động'), 
+(18, 'stock2.staff@shop.vn', 'Staff456', 'Hoạt động'); 
 
 -- Admin
 INSERT INTO Admin (id, role) VALUES
 (1, 'Quản trị viên'),
-(2, 'Nhân viên kho');
-
+(2, 'Nhân viên kho'),
+(16, 'Quản trị viên'),
+(17, 'Quản trị viên'),
+(18, 'Nhân viên kho');
 -- Customer
 INSERT INTO Customer (id) VALUES
 (3), (4), (5), (6), (7), (8), (9), (10), (11), (12), (13), (14), (15);
