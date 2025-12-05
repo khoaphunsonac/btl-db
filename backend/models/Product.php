@@ -116,4 +116,25 @@ class Product extends BaseModel
         
         return $stmt->fetchAll();
     }
+
+
+    public function searchProducts($query) {
+        $sql = "SELECT id, name, price FROM {$this->table} 
+                WHERE name LIKE :query OR id = :id_query 
+                LIMIT 10";
+                
+        $stmt = $this->pdo->prepare($sql);
+        $searchQuery = "%{$query}%";
+        $stmt->bindValue(':query', $searchQuery);
+        
+        // Thử chuyển đổi query thành số để tìm kiếm theo ID
+        $idQuery = is_numeric($query) ? (int)$query : 0;
+        $stmt->bindValue(':id_query', $idQuery, PDO::PARAM_INT); 
+        
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+
+
 }

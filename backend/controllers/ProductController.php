@@ -242,4 +242,28 @@ class ProductController {
         
         return $errors;
     }
+
+
+    public function search() {
+        $query = $_GET['q'] ?? '';
+        
+        if (empty($query)) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Tham số tìm kiếm không được để trống']);
+            return;
+        }
+
+        try {
+            // Cần hàm searchProducts trong Product Model
+            $products = $this->productModel->searchProducts($query); 
+            
+            http_response_code(200);
+            echo json_encode(['success' => true, 'data' => $products]);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Lỗi tìm kiếm hệ thống']);
+        }
+    }
+
+
 }

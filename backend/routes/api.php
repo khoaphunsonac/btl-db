@@ -15,6 +15,7 @@ require_once __DIR__ . '/../controllers/DiscountController.php';
 require_once __DIR__ . '/../controllers/RatingController.php';
 require_once __DIR__ . '/../controllers/ContactController.php';
 require_once __DIR__ . '/../controllers/StatisticsController.php';
+require_once __DIR__ . '/../controllers/CartController.php';
 
 function handleRoute($db) {
     // Get PDO connection from Database instance
@@ -89,6 +90,24 @@ function handleRoute($db) {
                 // ============ PRODUCT ROUTES ============
                 case 'products':
                     $controller = new ProductController($pdo);
+                    
+                    if ($method === 'GET') {
+                        // KIỂM TRA ROUTE TÌM KIẾM: /api/products/search?q=...
+                        // Giả định $segments[1] là 'products' và $segments[2] là 'search'
+                        if (isset($segments[2]) && $segments[2] === 'search') { 
+                            $controller->search(); 
+                            break;
+                        }
+                        
+                        // Logic cũ (index/show)
+                        if ($id) {
+                            $controller->show($id);
+                        } else {
+                            $controller->index();
+                        }
+                    }
+                    
+                    
                     if ($method === 'GET' && !$id) {
                         $controller->index();
                     } elseif ($method === 'GET' && $id && !$action) {
@@ -117,6 +136,10 @@ function handleRoute($db) {
                         http_response_code(404);
                         echo json_encode(['success' => false, 'message' => 'Endpoint not found']);
                     }
+
+                    
+
+
                     break;
                 
                 // ============ CATEGORY ROUTES ============
@@ -142,6 +165,32 @@ function handleRoute($db) {
                     }
                     break;
                 
+
+
+                case 'carts': // Endpoint: /api/carts
+                    $controller = new CartController($pdo);
+                    switch ($method) {
+                        case 'GET':
+                            if ($id) {
+                                // GET /api/carts/{order_id} (Chi tiết giỏ hàng/đơn hàng đang chờ xử lý)
+                                $controller->get($id); 
+                            } else {
+                                // GET /api/carts (Danh sách các giỏ hàng/đơn hàng đang chờ xử lý)
+                                $controller->index(); 
+                            }
+                            break;
+                        default:
+                            http_response_code(405);
+                            echo json_encode(['success' => false, 'message' => 'Method not allowed for Carts']);
+                            break;
+                    }
+                    break;
+
+
+
+
+
+
                 // ============ ORDER ROUTES ============
                 case 'orders':
                     $controller = new OrderController($pdo);
