@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sản phẩm - NEMTHUNG Admin</title>
+    <title>Biến thể sản phẩm - NEMTHUNG Admin</title>
 
     <!-- Tabler CSS -->
     <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
@@ -16,24 +16,27 @@
     <div class="mount-admin-sidebar"></div>
 
     <div class="page-wrapper">
+        <!-- Header -->
         <div class="page-header d-print-none">
             <div class="container-xl">
                 <div class="row g-2 align-items-center">
                     <div class="col">
-                        <h2 class="page-title">Sản phẩm</h2>
+                        <h2 class="page-title">Biến thể sản phẩm</h2>
                     </div>
                     <div class="col-auto ms-auto">
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-add-product">
-                            <i class="ti ti-plus"></i> Thêm sản phẩm
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-add-variant">
+                            <i class="ti ti-plus"></i> Thêm biến thể
                         </button>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- Body -->
         <div class="page-body">
             <div class="container-xl">
                 <div class="card">
+                    <!-- Filter -->
                     <div class="card-body border-bottom py-3">
                         <div class="d-flex align-items-center gap-2">
                             <div class="text-muted">
@@ -44,63 +47,73 @@
                                 bản ghi
                             </div>
 
-                            <form id="productFilterForm" class="ms-auto d-flex align-items-center gap-2">
+                            <form id="variantFilterForm" class="ms-auto d-flex align-items-end gap-2 flex-wrap">
+                                <!-- ID Sản phẩm -->
                                 <div>
-                                    <label class="form-label">Tìm kiếm</label>
-                                    <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Tên sản phẩm, thương hiệu...">
+                                    <label class="form-label">ID sản phẩm</label>
+                                    <input type="number" id="filterProductId" class="form-control form-control-sm" placeholder="VD: 12">
                                 </div>
-
+                            
+                                <!-- Tên biến thể -->
+                                <div>
+                                    <label class="form-label">Tên biến thể</label>
+                                    <input type="text" id="filterColor" class="form-control form-control-sm" placeholder="VD: Xám, Đỏ...">
+                                </div>
+                            
+                                <!-- Trạng thái -->
                                 <div>
                                     <label class="form-label">Trạng thái</label>
                                     <select id="filterStatus" class="form-select form-select-sm">
                                         <option value="">Tất cả</option>
                                         <option value="Còn hàng">Còn hàng</option>
                                         <option value="Hết hàng">Hết hàng</option>
-                                        <option value="Chưa mở bán">Chưa mở bán</option>
                                     </select>
                                 </div>
-
+                            
+                                <!-- Sort ID -->
                                 <div>
-                                    <label class="form-label">Sắp xếp</label>
+                                    <label class="form-label">Sắp xếp ID</label>
                                     <select id="filterSort" class="form-select form-select-sm">
-                                        <option value="id-desc">Mới nhất</option>
-                                        <option value="cost_current-asc">Giá tăng dần</option>
-                                        <option value="cost_current-desc">Giá giảm dần</option>
-                                        <option value="overall_rating_star-desc">Đánh giá cao</option>
+                                        <option value="">Mặc định</option>
+                                        <option value="id-asc">ID tăng dần</option>
+                                        <option value="id-desc">ID giảm dần</option>
                                     </select>
                                 </div>
-
+                            
+                                <!-- Button -->
                                 <div class="mt-4">
                                     <button type="submit" class="btn btn-primary btn-sm">
                                         <i class="fas fa-search"></i> Lọc
                                     </button>
                                 </div>
-                            </form>
+                            </form>                            
                         </div>
                     </div>
 
+                    <!-- Table -->
                     <div class="table-responsive">
                         <table class="table card-table table-vcenter text-nowrap">
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>Tên</th>
-                                    <th>Thương hiệu</th>
-                                    <th>Giá hiện tại</th>
-                                    <th>Giá cũ</th>
+                                    <th>ID sản phẩm</th>
+                                    <th>Tên biến thể</th>
+                                    <th>Số lượng</th>
                                     <th>Trạng thái</th>
-                                    <th>Đánh giá</th>
                                     <th class="w-1"></th>
                                 </tr>
                             </thead>
-                            <tbody id="product-table-body">
-                                <!-- DATA WILL LOAD USING JS -->
+                            <tbody id="variant-table-body">
+                                <tr><td colspan="7" class="text-center text-muted py-5">Không có dữ liệu</td></tr>
                             </tbody>
                         </table>
                     </div>
 
+                    <!-- Pagination -->
                     <div class="card-footer d-flex align-items-center">
-                        <p class="m-0 text-muted">Hiển thị <span id="count-show">0</span> / <span id="total-records">0</span> sản phẩm</p>
+                        <p class="m-0 text-muted">
+                            Hiển thị <span id="count-show">0</span> / <span id="total-records">0</span> biến thể
+                        </p>
                         <ul class="pagination m-0 ms-auto" id="pagination"></ul>
                     </div>
                 </div>
@@ -109,71 +122,46 @@
     </div>
 </div>
 
-<!-- Modal: Add Product -->
-<div class="modal modal-blur fade" id="modal-add-product" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+<!-- Modal: Add Variant -->
+<div class="modal modal-blur fade" id="modal-add-variant" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Thêm sản phẩm</h5>
+                <h5 class="modal-title">Thêm biến thể</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-
             <div class="modal-body">
                 <div class="row mb-3">
                     <div class="col-lg-6">
-                        <label class="form-label">Tên sản phẩm</label>
-                        <input id="add-product-name" type="text" class="form-control" placeholder="Tên sản phẩm">
+                        <label class="form-label">ID sản phẩm</label>
+                        <input id="add-variant-product-id" type="number" class="form-control">
                     </div>
                     <div class="col-lg-6">
-                        <label class="form-label">Thương hiệu</label>
-                        <input id="add-product-trademark" type="text" class="form-control" placeholder="Thương hiệu">
+                        <label class="form-label">Tên biến thể</label>
+                        <input id="add-variant-color" type="text" class="form-control" placeholder="VD: Màu đỏ, ...">
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-lg-6">
-                        <label class="form-label">Giá hiện tại</label>
-                        <input id="add-product-cost-current" type="number" class="form-control" placeholder="VD: 200000">
-                    </div>
-                    <div class="col-lg-6">
-                        <label class="form-label">Giá cũ</label>
-                        <input id="add-product-cost-old" type="text" disabled="disabled" class="form-control" placeholder="NULL">
+                        <label class="form-label">Số lượng</label>
+                        <input id="add-variant-quantity" type="number" class="form-control" placeholder="VD: 10">
                     </div>
                 </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Mô tả</label>
-                    <textarea id="add-product-description" class="form-control" placeholder="Mô tả sản phẩm"></textarea>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Trạng thái</label>
-                    <select id="add-product-status" class="form-select">
-                        <option value="Còn hàng">Còn hàng</option>
-                        <option value="Hết hàng">Hết hàng</option>
-                        <option value="Chưa mở bán">Chưa mở bán</option>
-                    </select>
-                </div>
-
             </div>
-
             <div class="modal-footer">
                 <button class="btn btn-link" data-bs-dismiss="modal">Hủy</button>
-                <button type="submit" class="btn btn-primary" id="btnAddProduct">Lưu</button>
+                <button class="btn btn-primary" id="btnAddVariant">Lưu</button>
             </div>
         </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/js/tabler.min.js"></script>
-
 <script type="module">
     import { mountAdminSidebar } from '../../components/AdminSidebar.js';
-    document.addEventListener('DOMContentLoaded', () => {
-        mountAdminSidebar('.mount-admin-sidebar', 'admin-products');
-    });
+    mountAdminSidebar('.mount-admin-sidebar', 'admin-variants');
 </script>
-
-<script type="module" src="./admin_products.js"></script>
+<script type="module" src="./admin_product_variants.js"></script>
 </body>
 </html>
