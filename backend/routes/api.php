@@ -16,6 +16,7 @@ require_once __DIR__ . '/../controllers/RatingController.php';
 require_once __DIR__ . '/../controllers/ContactController.php';
 require_once __DIR__ . '/../controllers/StatisticsController.php';
 require_once __DIR__ . '/../controllers/ProductVariantController.php';
+require_once __DIR__ . '/../controllers/ProductAttributeController.php';
 
 function handleRoute($db) {
     // Get PDO connection from Database instance
@@ -87,40 +88,61 @@ function handleRoute($db) {
                     }
                     break;
 
-                    // ============ PRODUCT VARIANT ROUTES ============
-                    case 'product-variants':
-                        $controller = new ProductVariantController($pdo);
+                // ============ PRODUCT VARIANT ROUTES ============
+                case 'product-variants':
+                    $controller = new ProductVariantController($pdo);
 
-                        if ($method === 'GET' && !$id) {
-                            // GET /api/product-variants?product_id=&page=&limit=&color=&status=&sortBy=
-                            $controller->index();
-                        } elseif ($method === 'GET' && $id && !$action) {
-                            // GET /api/product-variants/{id}
-                            $controller->show($id);
-                        } elseif ($method === 'POST' && !$id) {
-                            // POST /api/product-variants
-                            $controller->create();
-                        } elseif ($method === 'PUT' && $id && !$action) {
-                            // PUT /api/product-variants/{id}
-                            $controller->update($id);
-                        } elseif ($method === 'DELETE' && $id) {
-                            // DELETE /api/product-variants/{id}
-                            $controller->delete($id);
-                        } else {
-                            http_response_code(404);
-                            echo json_encode(['success' => false, 'message' => 'Endpoint not found']);
-                        }
-                        break;
+                    if ($method === 'GET' && !$id) {
+                        // GET /api/product-variants?product_id=&page=&limit=&color=&status=&sortBy=
+                        $controller->index();
+                    } elseif ($method === 'GET' && $id && !$action) {
+                        // GET /api/product-variants/{id}
+                        $controller->show($id);
+                    } elseif ($method === 'POST' && !$id) {
+                        // POST /api/product-variants
+                        $controller->create();
+                    } elseif ($method === 'PUT' && $id && !$action) {
+                        // PUT /api/product-variants/{id}
+                        $controller->update($id);
+                    } elseif ($method === 'DELETE' && $id) {
+                        // DELETE /api/product-variants/{id}
+                        $controller->delete($id);
+                    } else {
+                        http_response_code(404);
+                        echo json_encode(['success' => false, 'message' => 'Endpoint not found']);
+                    }
+                    break;
+
+                // ============ PRODUCT ATTRIBUTE ROUTES ============
+                case 'product-attributes':
+                    $controller = new ProductAttributeController($pdo);
+
+                    if ($method === 'POST' && !$id) {
+                        // POST /api/product-attributes
+                        $controller->create();
+                    } elseif ($method === 'PUT' && $id && !$action) {
+                        // PUT /api/product-attributes/{id}
+                        $controller->update($id);
+                    } elseif ($method === 'DELETE' && $id) {
+                        // DELETE /api/product-attributes/{id}
+                        $controller->delete($id);
+                    } else {
+                        http_response_code(404);
+                        echo json_encode(['success' => false, 'message' => 'Endpoint not found']);
+                    }
+                    break;
                 
                 // ============ PRODUCT ROUTES ============
                 case 'products':
                     $controller = new ProductController($pdo);
                 
-                    if ($method === 'GET' && !$id) $controller->index();
-                    elseif ($method === 'GET' && $id && !$action) $controller->show($id);
+                    if ($method === 'GET' && !$id) $controller->testAll();
+                    // if ($method === 'GET' && !$id) $controller->index();
+                    // elseif ($method === 'GET' && $id && !$action) $controller->show($id);
                     elseif ($method === 'POST' && !$id) $controller->store();
                     elseif ($method === 'PUT' && $id) $controller->update($id);
                     elseif ($method === 'DELETE' && $id) $controller->delete($id);
+                    elseif ($method === 'GET' && $id) $controller->test($id);
                     else {
                         http_response_code(404);
                         echo json_encode(['success' => false, 'message' => 'Endpoint not found']);
@@ -297,7 +319,7 @@ function handleRoute($db) {
                     }
                     break;
                 
-                default:
+                    default:
                     http_response_code(404);
                     echo json_encode(['success' => false, 'message' => 'Resource not found']);
             }

@@ -7,13 +7,24 @@
 
   <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet"/>
-  
-  <!-- Custom styles (Fixed sidebar) -->
+
   <link rel="stylesheet" href="../fixed-sidebar.css?v=1">
-  <!-- Custom styles (Toast) -->
   <link rel="stylesheet" href="../../css/toast.css">
 
+  <style>
+    .attr-row, .variant-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .attr-row input,
+    .variant-row input,
+    .variant-row select {
+      flex: 1;
+    }
+  </style>
 </head>
+
 <body>
 <div class="page">
   <div class="mount-admin-sidebar"></div>
@@ -23,7 +34,7 @@
       <div class="container-xl">
         <div class="row g-2 align-items-center">
           <div class="col">
-            <h2 class="page-title" id="pageTitle">Thêm sản phẩm mới</h2>
+            <h2 class="page-title" id="pageTitle">Thêm sản phẩm</h2>
             <div class="text-muted mt-1">Điền thông tin sản phẩm</div>
           </div>
           <div class="col-auto">
@@ -40,71 +51,97 @@
         <form id="productForm" class="needs-validation" novalidate>
           <div class="row">
             <div class="col-lg-8">
+
+              <!-- PRODUCT INFO -->
               <div class="card mb-3">
-                <div class="card-header"><h3 class="card-title">Chi tiết sản phẩm</h3></div>
+                <div class="card-header"><h3 class="card-title">Thông tin sản phẩm</h3></div>
                 <div class="card-body">
+
                   <div class="row g-3">
                     <div class="col-md-6">
                       <label class="form-label required">Tên sản phẩm</label>
                       <input type="text" class="form-control" id="name" required>
-                      <div class="invalid-feedback">Vui lòng nhập tên sản phẩm</div>
                     </div>
+
                     <div class="col-md-6">
                       <label class="form-label required">Thương hiệu</label>
                       <input type="text" class="form-control" id="trademark" required>
-                      <div class="invalid-feedback">Vui lòng nhập thương hiệu</div>
                     </div>
+
                     <div class="col-md-6">
                       <label class="form-label required">Giá hiện tại</label>
                       <input type="number" class="form-control" id="cost_current" required>
-                      <div class="invalid-feedback">Vui lòng nhập giá hiện tại >0</div>
                     </div>
+
                     <div class="col-md-6">
                       <label class="form-label">Giá cũ</label>
-                      <input type="number" class="form-control" id="cost_old">
+                      <div id="cost_old"></div>
                     </div>
+
                     <div class="col-12">
                       <label class="form-label required">Mô tả</label>
                       <textarea class="form-control" id="description" required></textarea>
-                      <div class="invalid-feedback">Vui lòng nhập mô tả</div>
                     </div>
+
                     <div class="col-md-6">
                       <label class="form-label">Trạng thái</label>
-                      <select class="form-select" id="status">
-                        <option value="Còn hàng">Còn hàng</option>
-                        <option value="Hết hàng">Hết hàng</option>
-                        <option value="Chưa mở bán">Chưa mở bán</option>
-                      </select>
+                      <div id="status"></div>
                     </div>
-
-                    <!-- Attributes -->
-                    <div class="col-12">
-                      <label class="form-label">Thuộc tính sản phẩm</label>
-                      <div id="attributesContainer"></div>
-                      <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="btnAddAttr">
-                        <i class="ti ti-plus"></i> Thêm thuộc tính
-                      </button>
-                    </div>
-
                   </div>
+
                 </div>
               </div>
+
+              <!-- ATTRIBUTES -->
+              <div class="card mb-3">
+                <div class="card-header"><h3 class="card-title">Thuộc tính sản phẩm</h3></div>
+                <div class="card-body">
+
+                  <div id="attributesContainer"></div>
+
+                  <button type="button" class="btn btn-outline-primary mt-2" id="btnAddAttr">
+                    <i class="ti ti-plus"></i> Thêm thuộc tính
+                  </button>
+                </div>
+              </div>
+
+              <!-- VARIANTS -->
+              <div class="card mb-3">
+                <div class="card-header"><h3 class="card-title">Biến thể</h3></div>
+                <div class="card-body">
+
+                  <div id="variantsContainer">
+                    <!-- VARIANTS -->
+                  </div>
+
+                  <button type="button" class="btn btn-outline-primary mt-2" id="btnAddVariant">
+                    <i class="ti ti-plus"></i> Thêm biến thể
+                  </button>
+
+                </div>
+              </div>
+
             </div>
 
+            <!-- RIGHT SIDE BUTTONS -->
             <div class="col-lg-4">
               <div class="card mb-3">
                 <div class="card-header"><h3 class="card-title">Hành động</h3></div>
                 <div class="card-body">
                   <div class="d-grid gap-2">
+
                     <button type="submit" class="btn btn-primary" id="btnSubmit">
                       <i class="ti ti-device-floppy"></i> Lưu
                     </button>
-                    <button type="button" class="btn btn-outline-secondary" onclick="window.location.href='./index.html'">
+
+                    <button type="button" class="btn btn-outline-secondary" onclick="window.location.href='./admin_products.html'">
                       <i class="ti ti-x"></i> Hủy
                     </button>
+
                     <button type="button" class="btn btn-outline-danger" id="btnDelete" style="display:none;">
                       <i class="ti ti-trash"></i> Xóa sản phẩm
                     </button>
+
                   </div>
                 </div>
               </div>
@@ -114,6 +151,7 @@
         </form>
       </div>
     </div>
+
   </div>
 </div>
 
