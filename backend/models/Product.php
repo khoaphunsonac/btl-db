@@ -69,6 +69,129 @@ class Product extends BaseModel {
         return $product;
     }
 
+    public function getAllTest($page = 1, $limit = 10, $filters = []) {
+        $search = $filters['search'] ?? '';
+        $status = $filters['status'] ?? '';
+        $sort   = $filters['sortBy'] ?? 'id-desc';
+    
+        // 1. Gọi stored procedure có tham số
+        $stmt = $this->pdo->prepare("
+            CALL get_all_products(:search, :status, :sort)
+        ");
+        $stmt->bindValue(':search', $search);
+        $stmt->bindValue(':status', $status);
+        $stmt->bindValue(':sort', $sort);
+        $stmt->execute();
+    
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt->closeCursor(); // VERY IMPORTANT: tránh lỗi “Commands out of sync”
+    
+        // 2. Gom product + list color
+        $products = [];
+    
+        foreach ($rows as $row) {
+            $pid = $row['product_id'];
+    
+            if (!isset($products[$pid])) {
+                $products[$pid] = [
+                    'id' => $row['product_id'],
+                    'name' => $row['product_name'],
+                    'trademark' => $row['product_trademark'],
+                    'cost_current' => $row['product_cost_current'],
+                    'cost_old' => $row['product_cost_old'],
+                    'description' => $row['product_description'],
+                    'status' => $row['product_status'],
+                    'overall_rating_star' => $row['product_rating_star'],
+                    'rating_count' => $row['product_rating_count'],
+                    'colors' => []
+                ];
+            }
+    
+            if (!empty($row['variant_color'])) {
+                $products[$pid]['colors'][] = $row['variant_color'];
+            }
+        }
+    
+        // 3. Convert indexed array
+        $products = array_values($products);
+    
+        // 4. Pagination
+        $total = count($products);
+        $totalPages = ceil($total / $limit);
+        $offset = ($page - 1) * $limit;
+    
+        $pagedData = array_slice($products, $offset, $limit);
+    
+        // 5. Return chuẩn API
+        return [
+            'data' => $pagedData,
+            'pagination' => [
+                'current_page' => (int)$page,
+                'per_page' => (int)$limit,
+                'total_items' => (int)$total,
+                'total_pages' => (int)$totalPages,
+                'from' => $offset + 1,
+                'to' => min($offset + $limit, $total)
+            ]
+        ];
+    }            
+
+    public function getTest($id) {
+        $stmt = $this->pdo->prepare("CALL get_product(:id)");
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+        if (empty($rows)) return null;
+    
+        // Lấy info product từ dòng đầu tiên
+        $product = [
+            "id" => $rows[0]["product_id"],
+            "name" => $rows[0]["product_name"],
+            "trademark" => $rows[0]["product_trademark"],
+            "cost_current" => $rows[0]["product_cost_current"],
+            "cost_old" => $rows[0]["product_cost_old"],
+            "description" => $rows[0]["product_description"],
+            "status" => $rows[0]["product_status"],
+            "rating_star" => $rows[0]["product_rating_star"],
+            "rating_count" => $rows[0]["product_rating_count"],
+            "variants" => [],
+            "attributes" => []
+        ];
+    
+        // Dùng map để tránh duplicate
+        $variantMap = [];
+        $attrMap = [];
+    
+        foreach ($rows as $r) {
+    
+            // Gom variant nếu chưa có
+            if (!isset($variantMap[$r["variant_id"]])) {
+                $variantMap[$r["variant_id"]] = [
+                    "id" => $r["variant_id"],
+                    "color" => $r["variant_color"],
+                    "quantity" => $r["variant_quantity"],
+                    "status" => $r["variant_status"]
+                ];
+            }
+    
+            // Gom attribute nếu chưa có
+            if (!isset($attrMap[$r["attribute_id"]])) {
+                $attrMap[$r["attribute_id"]] = [
+                    "id" => $r["attribute_id"],
+                    "name" => $r["attribute_name"],
+                    "value" => $r["attribute_value"]
+                ];
+            }
+        }
+    
+        // Turn map → array
+        $product["variants"] = array_values($variantMap);
+        $product["attributes"] = array_values($attrMap);
+    
+        return $product;
+    }    
+
     /** Tạo product + attributes */
     public function create($data) {
         $this->pdo->beginTransaction();

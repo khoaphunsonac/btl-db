@@ -45,11 +45,19 @@
                             </div>
 
                             <form id="productFilterForm" class="ms-auto d-flex align-items-center gap-2">
+
+                                <!-- SEARCH -->
                                 <div>
                                     <label class="form-label">Tìm kiếm</label>
-                                    <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Tên sản phẩm, thương hiệu...">
+                                    <input 
+                                        type="text" 
+                                        id="searchInput" 
+                                        class="form-control form-control-sm" 
+                                        placeholder="Tên sản phẩm, thương hiệu..."
+                                    >
                                 </div>
-
+                            
+                                <!-- STATUS -->
                                 <div>
                                     <label class="form-label">Trạng thái</label>
                                     <select id="filterStatus" class="form-select form-select-sm">
@@ -59,23 +67,31 @@
                                         <option value="Chưa mở bán">Chưa mở bán</option>
                                     </select>
                                 </div>
-
+                            
+                                <!-- SORTING -->
                                 <div>
                                     <label class="form-label">Sắp xếp</label>
                                     <select id="filterSort" class="form-select form-select-sm">
+                            
+                                        <!-- phù hợp với validateSort trong backend -->
                                         <option value="id-desc">Mới nhất</option>
+                                        <option value="id-asc">Cũ nhất</option>
+                            
                                         <option value="cost_current-asc">Giá tăng dần</option>
                                         <option value="cost_current-desc">Giá giảm dần</option>
+                            
                                         <option value="overall_rating_star-desc">Đánh giá cao</option>
+                                        <option value="overall_rating_star-asc">Đánh giá thấp</option>
                                     </select>
                                 </div>
-
+                            
                                 <div class="mt-4">
                                     <button type="submit" class="btn btn-primary btn-sm">
                                         <i class="fas fa-search"></i> Lọc
                                     </button>
                                 </div>
                             </form>
+                            
                         </div>
                     </div>
 
@@ -90,6 +106,7 @@
                                     <th>Giá cũ</th>
                                     <th>Trạng thái</th>
                                     <th>Đánh giá</th>
+                                    <th>Biến thể</th>
                                     <th class="w-1"></th>
                                 </tr>
                             </thead>
