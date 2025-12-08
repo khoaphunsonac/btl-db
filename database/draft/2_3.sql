@@ -1,34 +1,34 @@
 -- Product - Product Attribute - Product Variant
-DELIMITER $$
+-- DELIMITER $$
 
-CREATE PROCEDURE get_product_full(IN p_id INT)
-BEGIN
-    -- 1. Kiểm tra product có tồn tại hay không
-    IF NOT EXISTS (SELECT 1 FROM Product WHERE id = p_id) THEN
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'Sản phẩm không tồn tại.';
-    END IF;
+-- CREATE PROCEDURE get_product_full(IN p_id INT)
+-- BEGIN
+--     -- 1. Kiểm tra product có tồn tại hay không
+--     IF NOT EXISTS (SELECT 1 FROM Product WHERE id = p_id) THEN
+--         SIGNAL SQLSTATE '45000'
+--             SET MESSAGE_TEXT = 'Sản phẩm không tồn tại.';
+--     END IF;
 
-    -- 2. Lấy thông tin chính của sản phẩm
-    SELECT *
-    FROM Product
-    WHERE id = p_id;
+--     -- 2. Lấy thông tin chính của sản phẩm
+--     SELECT *
+--     FROM Product
+--     WHERE id = p_id;
 
-    -- 3. Lấy toàn bộ thuộc tính của sản phẩm
-    SELECT id, name, `value`
-    FROM Product_attribute
-    WHERE product_id = p_id
-    ORDER BY id ASC;
+--     -- 3. Lấy toàn bộ thuộc tính của sản phẩm
+--     SELECT id, name, `value`
+--     FROM Product_attribute
+--     WHERE product_id = p_id
+--     ORDER BY id ASC;
 
-    -- 4. Lấy toàn bộ biến thể (variant) của sản phẩm
-    SELECT id, color, quantity, status
-    FROM Product_variant
-    WHERE product_id = p_id
-    ORDER BY id ASC;
+--     -- 4. Lấy toàn bộ biến thể (variant) của sản phẩm
+--     SELECT id, color, quantity, status
+--     FROM Product_variant
+--     WHERE product_id = p_id
+--     ORDER BY id ASC;
 
-END$$
+-- END$$
 
-DELIMITER ;
+-- DELIMITER ;
 
 -- 
 DELIMITER $$

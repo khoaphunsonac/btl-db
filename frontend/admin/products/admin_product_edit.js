@@ -215,9 +215,6 @@ async function handleDeleteVariant(id) {
 };
 
 async function handleAddVariant(productId, color, quantity, id = null) {
-  if (!color) return showError("Màu sắc không được để trống");
-  if (quantity < 0) return showError("Số lượng không hợp lệ");
-
   // UPDATE
   if (id) {
     try {
@@ -252,7 +249,8 @@ async function handleAddVariant(productId, color, quantity, id = null) {
 
   } catch (err) {
     console.error(err);
-    showError("Lỗi khi thêm biến thể");
+    showError(err.data?.errors ? Object.values(err.data.errors).join('<br>') : err.message);
+    return false;
   }
 }
 
@@ -278,8 +276,6 @@ async function handleDeleteAttribute(id) {
 }
 
 async function handleAddAttribute(productId, name, value, id = null) {
-  // if (!name) return showError("Màu sắc không được để trống");
-  // if (value < 0) return showError("Số lượng không hợp lệ");
 
   // UPDATE
   if (id) {
@@ -287,7 +283,7 @@ async function handleAddAttribute(productId, name, value, id = null) {
       const res = await apiClient.put(`product-attributes/${id}`, { name, value, product_id : productId });
       if (!res.success) return showError(res.message || "Không thể cập nhật");
 
-      showSuccess("Cập nhật biến thể thành công");
+      showSuccess("Cập nhật thuộc tính thành công");
       return loadVariants();
 
     } catch (err) {
@@ -307,10 +303,10 @@ async function handleAddAttribute(productId, name, value, id = null) {
 
     if (!res.success) {
       if (res.errors) return showError(Object.values(res.errors).join("<br>"));
-      return showError(res.message || "Không thể thêm biến thể");
+      return showError(res.message || "Không thể thêm thuộc tính");
     }
 
-    showSuccess("Thêm biến thể thành công");
+    showSuccess("Thêm thuộc tính thành công");
     loadVariants();
 
   } catch (err) {

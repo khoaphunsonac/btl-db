@@ -108,10 +108,10 @@ BEGIN
             SET MESSAGE_TEXT = 'Không thể cập nhật: Biến thể không tồn tại.';
     END IF;
 
-    -- 1.1 Nếu số lượng mới = số lượng cũ → không cho cập nhật
-    IF p_quantity = v_old_quantity THEN
+    -- 1.1 Nếu cả màu và số lượng đều không đổi → không cho cập nhật
+    IF p_quantity = v_old_quantity AND p_color = v_old_color THEN
         SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'Không thể cập nhật: Số lượng mới phải khác số lượng cũ.';
+            SET MESSAGE_TEXT = 'Không thể cập nhật: Không có thay đổi nào để cập nhật.';
     END IF;
 
     -- 2. Kiểm tra biến thể đã có trong Order_detail chưa
@@ -198,3 +198,46 @@ BEGIN
 END$$
 
 DELIMITER ;
+
+-- TEST
+
+----------- CREATE -------------
+-- call create_variant_safe(101, 'Mau 1', 10); -- Oke
+-- call create_variant_safe(null, 'Mau 2', 10); -- product_id không được null
+-- call create_variant_safe(999, 'Mau 2', 10); -- product_id không tồn tại
+-- call create_variant_safe(101, '', 10); -- color không được null or rỗng
+-- call create_variant_safe(101, 'Mau 2', null); -- quantity không được null
+-- call create_variant_safe(101, 'Mau 2', -2); -- quantity >= 0
+-- call create_variant_safe(101, 'Mau 1', 100); -- Trùng màu với biến thể khác cùng sản phẩm
+
+------------ UPDATE -------------
+--SELECT id FROM Product_variant
+--WHERE product_id = 101 AND color = 'Mau 1';
+
+-- call update_variant_safe(id, 20, 'Mau 1'); -- Oke
+-- call update_variant_safe(101, 10, ''); -- color không được null or rộng
+-- call update_variant_safe(101, null, 'Mau 1'); -- quantity không được để trống
+-- call update_variant_safe(101, -1, 'Mau 1'); -- quantity >= 0
+-- call update_variant_safe(null, 10, 'Mau 1'); -- id không được null - Biến thể không tồn tại
+-- call update_variant_safe(999, 10, 'Mau 1'); -- id không tồn tại
+-- call update_variant_safe(101, 10, 'Mau 2'); -- Số lượng mới = số lượng cũ, màu mới = màu cũ
+
+-- call create_variant_safe(101, 'Mau 2', 10);
+-- SELECT id FROM Product_variant
+-- WHERE product_id = 101 AND color = 'Mau 2';
+-- INSERT INTO `Order` (id, customer_id, address, date, payment_method, total_cost) VALUES
+-- (9999, 3, '456 Phố Điện Tử, Hà Nội', '2025-10-20 10:00:00', 'Chuyển khoản ngân hàng', 0.00);
+-- INSERT INTO Order_detail (id, order_id, product_variant_id, quantity) VALUES
+-- (1, 9999, id, 1); 
+-- call update_variant_safe(id, 60, 'Mau 2'); -- Biến thể đã được bán nên không thể đổi màu
+
+--SELECT id FROM Product_variant
+--WHERE product_id = 101 AND color = 'Mau 1';
+-- call update_variant_safe(id, 100, 'Mau 2'); -- Trùng màu với biến thể khác cùng sản phẩm
+
+------------ DELETE -------------
+-- call delete_variant_safe(99999); -- Biến thể không tồn tại
+-- call delete_variant_safe(id); -- Số lượng phải bằng 0
+
+-- call update_variant_safe(id, 0, 'Mau 2');
+-- call delete_variant_safe(id); -- Đã có trong order detail

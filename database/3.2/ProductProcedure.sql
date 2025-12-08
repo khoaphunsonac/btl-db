@@ -61,6 +61,7 @@ DELIMITER;
 
 -- UPDATE
 DELIMITER $$
+
 CREATE PROCEDURE update_product_safe(
     IN p_id INT,
     IN p_name VARCHAR(255),
@@ -71,12 +72,11 @@ CREATE PROCEDURE update_product_safe(
 )
 BEGIN
     DECLARE v_count INT;
-    DECLARE v_variant_count INT;
     DECLARE v_old_cost DECIMAL(10,2);
     DECLARE v_old_name VARCHAR(255);
     DECLARE v_old_status ENUM('Còn hàng', 'Hết hàng', 'Chưa mở bán');
 
-    -- 1. Sản phẩm tồn tại
+    -- 1. Kiểm tra sản phẩm tồn tại
     SELECT COUNT(*) INTO v_count FROM Product WHERE id = p_id;
     IF v_count = 0 THEN
         SIGNAL SQLSTATE '45000'
@@ -98,7 +98,7 @@ BEGIN
             SET MESSAGE_TEXT = 'Không thể cập nhật: Tên sản phẩm mới bị trùng.';
     END IF;
 
-    -- 2b. Cấm đổi tên nếu đã có đơn hàng
+    -- 3. Cấm đổi tên nếu đã từng bán
     IF p_name <> v_old_name THEN
         SELECT COUNT(*) INTO v_count
         FROM Order_detail od
@@ -111,35 +111,47 @@ BEGIN
         END IF;
     END IF;
 
-    -- 2c. Không cho đổi trạng thái
+    -- 4. Không cho đổi trạng thái
     IF p_status <> v_old_status THEN
         SIGNAL SQLSTATE '45000'
             SET MESSAGE_TEXT = 'Không thể cập nhật: Không được phép thay đổi trạng thái sản phẩm.';
     END IF;
 
-    -- 3. Validate giá tiền
+    -- 5. Validate giá > 0
     IF p_cost_current <= 0 THEN
         SIGNAL SQLSTATE '45000'
             SET MESSAGE_TEXT = 'Không thể cập nhật: Giá mới phải > 0.';
     END IF;
 
-    -- Giá mới phải khác giá cũ
+    -- 6. Nếu giá mới = giá cũ → update các field khác, KHÔNG đổi giá
     IF p_cost_current = v_old_cost THEN
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'Không thể cập nhật: Giá mới phải khác giá cũ.';
+        -- Không đổi giá → chỉ update khi các trường khác thực sự thay đổi
+        IF p_name <> v_old_name
+            OR p_trademark <> (SELECT trademark FROM Product WHERE id = p_id)
+            OR p_description <> (SELECT description FROM Product WHERE id = p_id)
+        THEN
+            UPDATE Product
+            SET 
+                name = p_name,
+                trademark = p_trademark,
+                description = p_description
+            WHERE id = p_id;
+        END IF;
+
+    ELSE
+        -- Giá thay đổi → cập nhật cả cost_old & cost_current
+        UPDATE Product
+        SET 
+            name = p_name,
+            trademark = p_trademark,
+            cost_old = v_old_cost,
+            cost_current = p_cost_current,
+            description = p_description
+        WHERE id = p_id;
     END IF;
 
-    -- 4. Update (không update status)
-    UPDATE Product
-    SET 
-        name = p_name,
-        trademark = p_trademark,
-        cost_old = v_old_cost,
-        cost_current = p_cost_current,
-        description = p_description
-    WHERE id = p_id;
-
 END $$
+
 DELIMITER ;
 
 -- DELETE
