@@ -1167,8 +1167,7 @@ DELIMITER ;
 -- Tính số lượng product bán ra trung bình hàng tháng.
 DELIMITER $$
 
-CREATE PROCEDURE sp_avgMonthlySalesCompletedProducts
-(
+CREATE PROCEDURE sp_avgMonthlySalesCompletedProducts (
     IN p_year INT
 )
 BEGIN

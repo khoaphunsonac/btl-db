@@ -36,6 +36,42 @@ class ProductController {
         echo json_encode(['success' => true, 'data' => $product]);
     }
 
+    public function test($id) {
+        $product = $this->productModel->getTest($id);
+        if (!$product) {
+            http_response_code(404);
+            echo json_encode(['success' => false, 'message' => 'Sản phẩm không tồn tại']);
+            return;
+        }
+        http_response_code(200);
+        echo json_encode(['success' => true, 'data' => $product]);
+    }
+
+    public function testAll() {
+        // Ép kiểu an toàn
+        $page  = isset($_GET['page'])  ? (int)$_GET['page']  : 1;
+        $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
+    
+        // Nhận filters từ query
+        $filters = [
+            'search' => $_GET['search'] ?? '',
+            'status' => $_GET['status'] ?? '',    
+            'sortBy' => $_GET['sortBy'] ?? 'id-desc'
+        ];
+    
+        // Gọi model
+        $result = $this->productModel->getAllTest($page, $limit, $filters);
+    
+        // Trả response chuẩn JSON
+        http_response_code(200);
+        echo json_encode([
+            'success' => true,
+            'data' => $result['data'],
+            'pagination' => $result['pagination'],
+            'filters' => $filters  // trả luôn filters để frontend sync UI
+        ]);
+    }    
+
     public function store() {
         $data = json_decode(file_get_contents("php://input"), true);
     
