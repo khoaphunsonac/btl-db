@@ -226,7 +226,7 @@ function renderRankBadge(rank) {
         'Thành viên Kim Cương': 'diamond'
     };
     
-    const badgeClass = rankColors[rank] || 'bg-gray';
+    const badgeClass = rankColors[rank] || 'bg-yellow';
     const icon = rankIcons[rank] || 'user';
     
     return `<span class="badge ${badgeClass} text-white">

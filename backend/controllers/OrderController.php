@@ -13,27 +13,33 @@ class OrderController {
      * Lấy danh sách đơn hàng (có filter theo status, user, date)
      */
     public function index() {
-        $page = $_GET['page'] ?? 1;
-        $limit = $_GET['limit'] ?? 10;
+        $page = (int)($_GET['page'] ?? 1);
+        $limit = (int)($_GET['limit'] ?? 10);
+        
+        // Tính OFFSET dựa trên PAGE và LIMIT
+        $offset = ($page - 1) * $limit; 
+        
         $status = $_GET['status'] ?? null;
         $userId = $_GET['user_id'] ?? null;
         $fromDate = $_GET['from_date'] ?? null;
         $toDate = $_GET['to_date'] ?? null;
         
-        $result = $this->orderModel->getAll([
-            'page' => $page,
-            'limit' => $limit,
+        // Chỉ truyền các filter không phải là pagination vào mảng conditions
+        $conditions = [
             'status' => $status,
             'user_id' => $userId,
-            'from_date' => $fromDate,
-            'to_date' => $toDate
-        ]);
+            'from_date' => $fromDate, // Sẽ được xử lý trong Order.php
+            'to_date' => $toDate       // Sẽ được xử lý trong Order.php
+        ];
+        
+        // GỌI PHƯƠNG THỨC VỚI CHỮ KÝ TƯƠNG THÍCH: ($limit, $offset, $conditions)
+        $result = $this->orderModel->getAll($limit, $offset, $conditions);
         
         http_response_code(200);
         echo json_encode([
             'success' => true,
             'data' => $result['data'],
-            'pagination' => $result['pagination']
+            'pagination' => $result['pagination'] // Giả sử Order::getAll đã trả về đầy đủ
         ]);
     }
     
@@ -42,7 +48,7 @@ class OrderController {
      * Lấy chi tiết đơn hàng (bao gồm items, logs)
      */
     public function show($id) {
-        $order = $this->orderModel->getById($id);
+        $order = $this->orderModel->getById($id); // Lấy thông tin đơn hàng chính
         
         if (!$order) {
             http_response_code(404);
@@ -50,8 +56,18 @@ class OrderController {
             return;
         }
         
+        // Lấy chi tiết sản phẩm trong đơn hàng
+        $items = $this->orderModel->getDetails($id); // Gọi hàm getDetails đã có sẵn
+        
+        // Gộp dữ liệu order và items lại
+        $data = $order;
+        $data['items'] = $items;
+        
+        // (Tùy chọn) Nếu muốn hiển thị logs:
+        // $data['logs'] = $this->orderModel->getStatusLogs($id);
+
         http_response_code(200);
-        echo json_encode(['success' => true, 'data' => $order]);
+        echo json_encode(['success' => true, 'data' => $data]);
     }
     
     /**
@@ -225,7 +241,7 @@ class OrderController {
             $this->orderModel->increaseStock($id);
         }
         
-        $result = $this->orderModel->updateStatus($id, 'cancelled', 'Đơn hàng bị hủy');
+        $result = $this->orderModel->updateStatus($id, 'cancelled');
         
         if ($result) {
             http_response_code(200);
@@ -271,4 +287,36 @@ class OrderController {
         
         return $errors;
     }
+
+
+    public function updateStatusRoute($id) { 
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        if (empty($data['status'])) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Trạng thái không được để trống']);
+            return;
+        }
+
+        $status = $data['status'];
+        // Đảm bảo không có logic lấy discount/note
+        
+        try {
+            // GỌI MODEL CHỈ VỚI HAI THAM SỐ
+            $result = $this->orderModel->updateStatus($id, $status);
+            
+            if ($result) {
+                http_response_code(200);
+                echo json_encode(['success' => true, 'message' => 'Cập nhật trạng thái thành công']);
+            } else {
+                http_response_code(500); 
+                echo json_encode(['success' => false, 'message' => 'Cập nhật trạng thái thất bại (logic)']);
+            }
+        } catch (Exception $e) {
+            error_log("Lỗi cập nhật trạng thái đơn hàng #{$id}: " . $e->getMessage());
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Cập nhật trạng thái thất bại (Server Error)']);
+        }
+    }
+
 }

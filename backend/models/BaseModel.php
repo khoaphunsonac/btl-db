@@ -8,7 +8,9 @@ abstract class BaseModel
 {
     protected $pdo;
     protected $table;
-    
+    protected $dateColumn = 'created_at';
+
+
     public function __construct($pdo)
     {
         $this->pdo = $pdo;
@@ -32,7 +34,7 @@ abstract class BaseModel
         }
         
         $sql = "SELECT * FROM {$this->table} $where 
-                ORDER BY created_at DESC 
+                ORDER BY {$this->dateColumn} DESC 
                 LIMIT :limit OFFSET :offset";
         
         $stmt = $this->pdo->prepare($sql);
@@ -163,7 +165,7 @@ abstract class BaseModel
         
         $sql = "SELECT * FROM {$this->table} 
                 WHERE $whereClause 
-                ORDER BY created_at DESC 
+                ORDER BY {$this->dateColumn} DESC 
                 LIMIT :limit OFFSET :offset";
         
         $stmt = $this->pdo->prepare($sql);

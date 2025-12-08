@@ -118,6 +118,39 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- Rating Pictures -->
+                                <div class="card mb-3">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Hình ảnh đánh giá</h3>
+                                        <div class="card-actions">
+                                            <span class="text-muted small">Tối đa 5 ảnh</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label class="form-label">Chọn ảnh</label>
+                                            <input type="file" class="form-control" id="ratingImages" accept="image/*" multiple>
+                                            <div class="form-hint">Chọn tối đa 5 ảnh (JPG, PNG, GIF). Kích thước tối đa mỗi ảnh: 2MB</div>
+                                        </div>
+                                        
+                                        <!-- Upload button for edit mode only -->
+                                        <div id="uploadImageSection" class="mb-3" style="display: none;">
+                                            <button type="button" class="btn btn-primary w-100" id="btnUploadImages">
+                                                <i class="ti ti-upload me-2"></i>
+                                                Upload ảnh ngay
+                                            </button>
+                                            <div class="form-hint text-center mt-2">
+                                                Upload ảnh đã chọn mà không cần lưu đánh giá
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Image Preview -->
+                                        <div id="imagePreviewContainer" class="row g-2">
+                                            <!-- Preview images will be inserted here -->
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Actions -->

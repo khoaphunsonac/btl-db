@@ -349,36 +349,64 @@ class Product extends BaseModel {
         }
     }
     
-    /** Xóa product (có cascade xóa attribute nếu FK ON DELETE CASCADE) */
-    public function delete($id) {
-        try {
-            $stmt = $this->pdo->prepare("CALL delete_product_safe(:id)");
-            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-            $stmt->execute();
-    
-            return [
-                'success' => true,
-                'message' => 'Xóa thành công'
-            ];
-        } catch (PDOException $e) {
-    
-            // Lấy thông báo từ SIGNAL trong MySQL
-            $msg = $e->getMessage();
-            $errors = [];
-    
-            if (preg_match('/Không thể xoá: (.+)/', $msg, $matches)) {
-                // Lưu vào errors.message
-                $errors['message'] = 'Không thể xoá: ' . $matches[1];
-            } else {
-                // Lỗi khác
-                $errors['general'] = 'Lỗi cơ sở dữ liệu: ' . $msg;
-            }
-    
-            return [
-                'success' => false,
-                'errors'  => $errors
-            ];
-        }
+    /**
+     * Get low stock products
+     */
+    public function getLowStock($threshold = 10)
+    {
+        $sql = "SELECT * FROM {$this->table} 
+                WHERE stock <= :threshold AND stock > 0 
+                ORDER BY stock ASC";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':threshold', $threshold, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        return $stmt->fetchAll();
     }
     
+    /**
+     * Update stock
+     */
+    public function updateStock($id, $quantity)
+    {
+        $sql = "UPDATE {$this->table} 
+                SET stock = stock + :quantity 
+                WHERE id = :id";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':quantity', $quantity, PDO::PARAM_INT);
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        
+        return $stmt->execute();
+    }
+    
+    /**
+     * Get product variants
+     */
+    public function getVariants($productId)
+    {
+        $sql = "SELECT * FROM Product_Variant WHERE product_id = :product_id";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':product_id', $productId, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        return $stmt->fetchAll();
+    }
+    
+    /**
+     * Get product images
+     */
+    public function getImages($productId)
+    {
+        $sql = "SELECT * FROM Product_Image 
+                WHERE product_id = :product_id 
+                ORDER BY priority ASC";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':product_id', $productId, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        return $stmt->fetchAll();
+    }
 }
