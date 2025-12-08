@@ -107,6 +107,7 @@ async function handleAddProduct() {
         description: document.getElementById("add-product-description").value.trim(),
         status: document.getElementById("add-product-status").value
     };
+  
 
     try {
         const response = await apiClient.post('products', product);

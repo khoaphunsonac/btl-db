@@ -1,3 +1,4 @@
+DROP DATABASE IF EXISTS nemthungdb;
 CREATE DATABASE IF NOT EXISTS nemthungdb;
 USE nemthungdb;
 
@@ -88,12 +89,12 @@ CREATE TABLE Product (
   cost_old DECIMAL(10, 2)
     CHECK (cost_old > 0),
   description VARCHAR(255) NOT NULL,
-  status ENUM('Còn hàng', 'Hết hàng', 'Chưa mở bán')
-    DEFAULT 'Chưa mở bán' NOT NULL,
-  overall_rating_star DECIMAL(10, 2) NOT NULL DEFAULT 0.0,
+  status ENUM('Còn hàng', 'Hết hàng')
+    DEFAULT 'Còn hàng' NOT NULL,
+  overall_rating_star DECIMAL NOT NULL DEFAULT 0.0,
   rating_count INT NOT NULL DEFAULT 0,
-  CONSTRAINT CK_cost
-	CHECK (cost_current <> cost_old)
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
 );
 
 
