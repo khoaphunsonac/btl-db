@@ -127,7 +127,14 @@ class Rating extends BaseModel
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([$id]);
         
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $rating = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Load images if rating exists
+        if ($rating) {
+            $rating['images'] = $this->getImages($rating['id'], $rating['product_id']);
+        }
+        
+        return $rating;
     }
     
     /**
@@ -348,6 +355,80 @@ class Rating extends BaseModel
         $sql = "DELETE FROM {$this->table} WHERE id = ? AND product_id = ?";
         $stmt = $this->pdo->prepare($sql);
         return $stmt->execute([$id, $productId]);
+    }
+    
+    /**
+     * Get images for a rating
+     */
+    public function getImages($ratingId, $productId)
+    {
+        $sql = "SELECT id, rating_id, product_id, url_path 
+                FROM Rating_picture 
+                WHERE rating_id = ? AND product_id = ?
+                ORDER BY id ASC";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$ratingId, $productId]);
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Add image to rating
+     */
+    public function addImage($ratingId, $productId, $urlPath)
+    {
+        try {
+            // Get next image ID for this rating
+            $sql = "SELECT COALESCE(MAX(id), 0) + 1 as next_id 
+                    FROM Rating_picture 
+                    WHERE rating_id = ? AND product_id = ?";
+            
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$ratingId, $productId]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $imageId = $result['next_id'];
+            
+            // Insert image
+            $sql = "INSERT INTO Rating_picture (id, rating_id, product_id, url_path) 
+                    VALUES (?, ?, ?, ?)";
+            
+            $stmt = $this->pdo->prepare($sql);
+            $success = $stmt->execute([$imageId, $ratingId, $productId, $urlPath]);
+            
+            return $success ? $imageId : false;
+        } catch (PDOException $e) {
+            error_log("Error adding image: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Get image by ID
+     */
+    public function getImageById($imageId, $ratingId)
+    {
+        $sql = "SELECT id, rating_id, product_id, url_path 
+                FROM Rating_picture 
+                WHERE id = ? AND rating_id = ?
+                LIMIT 1";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$imageId, $ratingId]);
+        
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Delete image
+     */
+    public function deleteImage($imageId, $ratingId, $productId)
+    {
+        $sql = "DELETE FROM Rating_picture 
+                WHERE id = ? AND rating_id = ? AND product_id = ?";
+        
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([$imageId, $ratingId, $productId]);
     }
 }
 ?>

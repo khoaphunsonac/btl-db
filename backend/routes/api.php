@@ -287,6 +287,14 @@ function handleRoute($db) {
                     elseif ($method === 'DELETE' && $id) {
                         $controller->delete($id);
                     }
+                    // POST /api/ratings/{id}/images - Upload images for rating
+                    elseif ($method === 'POST' && $id && $action === 'images') {
+                        $controller->uploadImages($id);
+                    }
+                    // DELETE /api/ratings/{id}/images/{imageId} - Delete specific image
+                    elseif ($method === 'DELETE' && $id && $action === 'images' && isset($segments[4])) {
+                        $controller->deleteImage($id, $segments[4]);
+                    }
                     else {
                         http_response_code(404);
                         echo json_encode(['success' => false, 'message' => 'Endpoint not found']);

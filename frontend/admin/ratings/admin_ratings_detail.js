@@ -108,6 +108,50 @@ function displayRatingDetail(rating) {
     // Rating type
     const ratingTypeText = getRatingTypeText(rating.star);
     document.getElementById('ratingType').innerHTML = `<span class="badge bg-${getStarColor(rating.star)}">${ratingTypeText}</span>`;
+    
+    // Display images if available
+    if (rating.images && rating.images.length > 0) {
+        displayRatingImages(rating.images);
+    }
+}
+
+/**
+ * Display rating images
+ */
+function displayRatingImages(images) {
+    const container = document.getElementById('ratingImagesContainer');
+    const card = document.getElementById('ratingImagesCard');
+    const countBadge = document.getElementById('imageCount');
+    
+    // Show card
+    card.style.display = 'block';
+    countBadge.textContent = `${images.length} ảnh`;
+    
+    // Clear container
+    container.innerHTML = '';
+    
+    // Add images
+    images.forEach((image, index) => {
+        const col = document.createElement('div');
+        col.className = 'col-6 col-md-4 col-lg-3';
+        col.innerHTML = `
+            <div class="card card-link" onclick="viewImage('${image.url_path}')">
+                <div class="card-body p-2">
+                    <img src="${image.url_path}" class="img-fluid rounded" alt="Rating image ${index + 1}" 
+                         style="width: 100%; height: 150px; object-fit: cover; cursor: pointer;">
+                    <div class="text-muted small mt-1 text-center">Ảnh ${index + 1}</div>
+                </div>
+            </div>
+        `;
+        container.appendChild(col);
+    });
+}
+
+/**
+ * View image in modal/new tab
+ */
+window.viewImage = function(url) {
+    window.open(url, '_blank');
 }
 
 /**

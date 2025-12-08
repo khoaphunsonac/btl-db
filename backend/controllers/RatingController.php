@@ -327,5 +327,180 @@ class RatingController {
         
         return $errors;
     }
+    
+    /**
+     * POST /api/ratings/{id}/images
+     * Upload images for rating
+     */
+    public function uploadImages($ratingId) {
+        try {
+            // Debug logging
+            error_log("Upload images called for rating: $ratingId");
+            error_log("POST data: " . print_r($_POST, true));
+            error_log("FILES data: " . print_r($_FILES, true));
+            
+            // Get product_id from POST data
+            $productId = $_POST['product_id'] ?? null;
+            
+            if (!$productId) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => 'product_id là bắt buộc']);
+                return;
+            }
+            
+            // Check if rating exists
+            $rating = $this->ratingModel->getById($ratingId);
+            if (!$rating) {
+                http_response_code(404);
+                echo json_encode(['success' => false, 'message' => 'Đánh giá không tồn tại']);
+                return;
+            }
+            
+            // Check if files were uploaded
+            if (!isset($_FILES['images']) || empty($_FILES['images']['name'][0])) {
+                http_response_code(400);
+                echo json_encode([
+                    'success' => false, 
+                    'message' => 'Không có file nào được upload',
+                    'debug' => [
+                        'files_set' => isset($_FILES['images']),
+                        'files_data' => $_FILES
+                    ]
+                ]);
+                return;
+            }
+            
+            // Create upload directory if not exists
+            $uploadDir = __DIR__ . '/../storage/ratings/';
+            if (!file_exists($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+            
+            $uploadedImages = [];
+            $errors = [];
+            
+            // Process each file
+            $fileCount = count($_FILES['images']['name']);
+            for ($i = 0; $i < $fileCount; $i++) {
+                $fileName = $_FILES['images']['name'][$i];
+                $fileTmpName = $_FILES['images']['tmp_name'][$i];
+                $fileSize = $_FILES['images']['size'][$i];
+                $fileError = $_FILES['images']['error'][$i];
+                
+                // Skip if no file
+                if ($fileError === UPLOAD_ERR_NO_FILE) {
+                    continue;
+                }
+                
+                // Check for upload errors
+                if ($fileError !== UPLOAD_ERR_OK) {
+                    $errors[] = "Lỗi upload file: $fileName";
+                    continue;
+                }
+                
+                // Validate file type
+                $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                $mimeType = finfo_file($finfo, $fileTmpName);
+                finfo_close($finfo);
+                
+                if (!in_array($mimeType, $allowedTypes)) {
+                    $errors[] = "File $fileName không phải là ảnh hợp lệ";
+                    continue;
+                }
+                
+                // Validate file size (2MB max)
+                if ($fileSize > 2 * 1024 * 1024) {
+                    $errors[] = "File $fileName vượt quá 2MB";
+                    continue;
+                }
+                
+                // Generate unique filename
+                $extension = pathinfo($fileName, PATHINFO_EXTENSION);
+                $newFileName = 'rating_' . $ratingId . '_' . $productId . '_' . time() . '_' . $i . '.' . $extension;
+                $targetPath = $uploadDir . $newFileName;
+                
+                // Move uploaded file
+                if (move_uploaded_file($fileTmpName, $targetPath)) {
+                    // Save to database
+                    $urlPath = '/btl-db/backend/storage/ratings/' . $newFileName;
+                    $imageId = $this->ratingModel->addImage($ratingId, $productId, $urlPath);
+                    
+                    if ($imageId) {
+                        $uploadedImages[] = [
+                            'id' => $imageId,
+                            'url_path' => $urlPath
+                        ];
+                    } else {
+                        $errors[] = "Không thể lưu thông tin ảnh $fileName vào database";
+                        // Delete uploaded file if database insert failed
+                        unlink($targetPath);
+                    }
+                } else {
+                    $errors[] = "Không thể lưu file $fileName";
+                }
+            }
+            
+            // Return response
+            if (!empty($uploadedImages)) {
+                http_response_code(200);
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Upload thành công ' . count($uploadedImages) . ' ảnh',
+                    'data' => $uploadedImages,
+                    'errors' => $errors
+                ]);
+            } else {
+                http_response_code(400);
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Không thể upload ảnh',
+                    'errors' => $errors
+                ]);
+            }
+            
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Lỗi server: ' . $e->getMessage()]);
+        }
+    }
+    
+    /**
+     * DELETE /api/ratings/{id}/images/{imageId}
+     * Delete specific image
+     */
+    public function deleteImage($ratingId, $imageId) {
+        try {
+            // Get image info
+            $image = $this->ratingModel->getImageById($imageId, $ratingId);
+            
+            if (!$image) {
+                http_response_code(404);
+                echo json_encode(['success' => false, 'message' => 'Ảnh không tồn tại']);
+                return;
+            }
+            
+            // Delete file from filesystem
+            $filePath = __DIR__ . '/../..' . $image['url_path'];
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+            
+            // Delete from database
+            $result = $this->ratingModel->deleteImage($imageId, $ratingId, $image['product_id']);
+            
+            if ($result) {
+                http_response_code(200);
+                echo json_encode(['success' => true, 'message' => 'Xóa ảnh thành công']);
+            } else {
+                http_response_code(500);
+                echo json_encode(['success' => false, 'message' => 'Không thể xóa ảnh']);
+            }
+            
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Lỗi server: ' . $e->getMessage()]);
+        }
+    }
 }
 ?>

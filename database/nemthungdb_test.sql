@@ -1,3 +1,4 @@
+DROP DATABASE IF EXISTS nemthungdb;
 CREATE DATABASE IF NOT EXISTS nemthungdb;
 USE nemthungdb;
 
