@@ -1,11 +1,14 @@
 import { ready } from '../../js/main.js';
 import { BASE_URL } from '../../js/config.js';
 import { Popup } from '../../components/PopUp.js';
+import { apiGet, apiPut, apiDelete, apiPost } from '../../js/api-client.js';
+
+
 
 ready(async () => {
-  const API_BASE = BASE_URL;
+  // const API_BASE = BASE_URL;
   const popup = new Popup();
-
+  const API_BASE = BASE_URL; 
   // --- 1. DOM SELECTORS (ĐÃ CẬP NHẬT) ---
   const tableHeadSel = '#ordersTableHead';
   const tableBodySel = '#ordersTableBody';
@@ -35,11 +38,7 @@ ready(async () => {
   };
 
   // --- 3. HÀM GỌI API ---
-  async function fetchJson(url) {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return (await res.json()).data;
-  }
+ 
 
   // --- 4. HÀM LOGIC CHÍNH ---
   async function loadCurrentTabData() {
@@ -82,12 +81,13 @@ ready(async () => {
     document.querySelector(tableHeadSel).innerHTML = `
       <tr>
         <th>Người dùng</th>
-        <th>Tổng tiền</th>
         <th>Địa chỉ</th>
-        <th>Phương thức thanh toán</th>
         <th>Trạng thái</th>
-        <th>Note</th>
+        <th>Phương thức thanh toán</th>
         <th>Ngày tạo đơn</th>
+        <th>Trước khi giảm giá</th>
+        <th>Discount</th>
+        <th>Tổng cộng</th>
         <th class="text-end">Thao tác</th>
       </tr>
     `;
@@ -102,9 +102,8 @@ ready(async () => {
     }
     tbody.innerHTML = carts.map(c => `
       <tr>
-        <td>${c.user_name || c.user || '-'}</td>
-        <td>${c.total_items}</td>
-        <td>${c.updated_at || '-'}</td>
+        <td>${c.customer_name || c.user_name || c.user || '-'}</td>         <td>${c.total_items}</td>
+        <td>${c.updated_at || '-'}</td>
         <td class="text-end">
           <button class="btn btn-outline-primary btn-sm btn-view-cart me-1" data-id="${c.user_id}">Xem</button>
         </td>
@@ -114,34 +113,390 @@ ready(async () => {
     renderPagination(page, totalPages, state.totalItems);
   }
 
+
+  async function handleCreateOrderSubmit(popup, API_BASE) {
+    const userFname = document.getElementById('orderUserFname').value.trim();
+    const userLname = document.getElementById('orderUserLname').value.trim();
+    const userEmail = document.getElementById('orderUserEmail').value.trim();
+    const shippingAddress = document.getElementById('orderShippingAddress').value.trim();
+    const paymentMethod = document.getElementById('orderPaymentMethod').value;
+    const discountId = document.getElementById('orderDiscountId').value.trim();
+    
+    // 1. Validation cơ bản (SỬ DỤNG CÁC TRƯỜNG INPUT ĐÃ ĐỊNH NGHĨA)
+    if (!userFname || !userLname || !userEmail || !shippingAddress || !paymentMethod) {
+        popup.show({ title: 'Lỗi', content: 'Vui lòng điền đầy đủ Tên, Họ, Email, Địa chỉ và Phương thức thanh toán.' });
+        return;
+    }
+    
+    // 2. Xử lý chi tiết sản phẩm
+    const itemElements = document.querySelectorAll('#orderItemsContainer .order-item');
+    const items = [];
+    let isValid = true;
+    
+    itemElements.forEach(row => {
+        const productId = row.querySelector('.item-product-id').value; 
+        const quantity = row.querySelector('.item-quantity').value;
+
+        if (!productId || !quantity || parseInt(quantity) <= 0) {
+            isValid = false;
+        }
+
+        items.push({
+            product_id: parseInt(productId),
+            quantity: parseInt(quantity),
+        });
+    });
+
+    if (!isValid || items.length === 0) {
+        popup.show({ title: 'Lỗi', content: 'Vui lòng nhập chi tiết sản phẩm hợp lệ (ID, Số lượng > 0).' });
+        return;
+    }
+    
+    let userId = null;
+    
+    // 3. TÌM KIẾM HOẶC TẠO NGƯỜI DÙNG DỰA TRÊN EMAIL
+    try {
+        const userData = { fname: userFname, lname: userLname, email: userEmail };
+        // Giả định bạn có API để tạo/tìm kiếm người dùng: POST /api/users/find_or_create
+        const userResult = await apiPost(API_BASE + '/users/find_or_create', userData);
+        
+        if (userResult && userResult.success && userResult.data && userResult.data.id) {
+            userId = userResult.data.id;
+        } else {
+            popup.show({ title: 'Lỗi Người dùng', content: userResult.message || 'Không thể tìm hoặc tạo người dùng mới.' });
+            return;
+        }
+    } catch (error) {
+        console.error('API User Error:', error);
+        popup.show({ title: 'Lỗi', content: 'Không thể kết nối API người dùng.' });
+        return;
+    }
+    
+    // 4. Tạo Đơn Hàng
+    const orderData = {
+        user_id: parseInt(userId),
+        shipping_address: shippingAddress,
+        payment_method: paymentMethod,
+        discount_id: discountId ? parseInt(discountId) : null,
+        items: items,
+    };
+    
+    try {
+        const result = await apiPost(API_BASE + '/orders', orderData);
+
+        if (result && result.success) {
+            popup.hide();
+            await loadData(state.currentTab, state.page); // Đã sửa tên hàm tải dữ liệu (Nếu có)
+            popup.show({ title: 'Thành công', content: `Đã tạo đơn hàng mới #${result.data.order_id} thành công!`, footer: `<button class="btn btn-primary" onclick="window.location.reload()">Đóng</button>` });
+        } else {
+            popup.show({ title: 'Lỗi tạo đơn hàng', content: result.message || 'Có lỗi xảy ra khi gọi API tạo đơn hàng.' });
+        }
+
+    } catch (error) {
+        console.error('API Order Error:', error);
+        popup.show({ title: 'Lỗi kết nối', content: 'Không thể kết nối đến máy chủ hoặc API.', footer: `<button class="btn btn-primary" data-dismiss="modal">Đóng</button>` });
+    }
+}
+
+  // Hàm hiển thị modal tạo đơn hàng VỚI LOGIC TẠO NGƯỜI DÙNG VÀ LẤY GIÁ TỰ ĐỘNG
+function showCreateOrderModal(popup, API_BASE) {
+    const modalContent = `
+        <div id="createOrderForm">
+            <h4>Thông tin Khách hàng</h4>
+            <div class="mb-3">
+                <label class="form-label">Tên Người dùng (First Name)</label>
+                <input type="text" class="form-control" id="orderUserFname" placeholder="Ví dụ: Nguyễn" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Họ Người dùng (Last Name)</label>
+                <input type="text" class="form-control" id="orderUserLname" placeholder="Ví dụ: Văn A" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Email Người dùng</label>
+                <input type="email" class="form-control" id="orderUserEmail" placeholder="Nhập Email để tạo tài khoản" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Địa chỉ giao hàng</label>
+                <input type="text" class="form-control" id="orderShippingAddress" placeholder="Nhập địa chỉ" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Phương thức thanh toán</label>
+                <select class="form-select" id="orderPaymentMethod" required>
+                    <option value="Thanh toán khi nhận hàng">Thanh toán khi nhận hàng</option>
+                    <option value="Chuyển khoản">Chuyển khoản</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Mã giảm giá (ID)</label>
+                <input type="text" class="form-control" id="orderDiscountId" placeholder="Nhập ID mã giảm giá (Có thể bỏ trống)">
+            </div>
+            <hr/>
+            <h4>Chi tiết sản phẩm</h4>
+            <div id="orderItemsContainer">
+                <div class="row g-2 mb-3 order-item" data-index="0">
+                    <input type="hidden" class="item-product-id" value="" required> 
+                    
+                    <div class="col-10 position-relative">
+                        <input type="text" class="form-control item-product-search" placeholder="Tìm kiếm tên hoặc ID sản phẩm..." required>
+                        <div class="search-results-dropdown list-group position-absolute w-100 shadow-sm z-index-1" style="display: none; top: 100%;"></div>
+                    </div>
+                    
+                    <div class="col-2">
+                        <button type="button" class="btn btn-outline-danger btn-icon btn-remove-item" disabled><i class="ti ti-trash"></i></button>
+                    </div>
+
+                    <div class="col-12 mt-1 item-details">
+                        <div class="row g-2">
+                            <div class="col-8">
+                                <input type="text" class="form-control item-product-name" placeholder="Tên sản phẩm" readonly>
+                            </div>
+                            <div class="col-2">
+                                <input type="number" class="form-control item-quantity" placeholder="SL" min="1" value="1" required>
+                            </div>
+                            <div class="col-2">
+                                <input type="text" class="form-control item-price" placeholder="Giá" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="btn btn-outline-success btn-sm mb-3" id="btnAddItem"><i class="ti ti-plus me-1"></i> Thêm sản phẩm</button>
+
+            <div class="d-flex justify-content-end mt-4">
+                <button type="button" class="btn btn-secondary me-2" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="btnSubmitCreateOrder">Tạo Đơn Hàng</button>
+            </div>
+        </div>
+    `;
+
+    popup.show({
+        title: 'Tạo Đơn Hàng Mới',
+        content: modalContent,
+        footer: ``,
+        onOpen: () => {
+            // ... (Logic thêm/xóa sản phẩm)
+            let itemIndex = 0;
+            const container = document.getElementById('orderItemsContainer');
+            
+            const createNewItemRow = (index) => {
+                return `
+                    <div class="row g-2 mb-3 order-item" data-index="${index}">
+                        <input type="hidden" class="item-product-id" value="" required> 
+                        <div class="col-10 position-relative">
+                            <input type="text" class="form-control item-product-search" placeholder="Tìm kiếm tên hoặc ID sản phẩm..." required>
+                            <div class="search-results-dropdown list-group position-absolute w-100 shadow-sm z-index-1" style="display: none; top: 100%;"></div>
+                        </div>
+                        <div class="col-2">
+                            <button type="button" class="btn btn-outline-danger btn-icon btn-remove-item"><i class="ti ti-trash"></i></button>
+                        </div>
+                        <div class="col-12 mt-1 item-details">
+                            <div class="row g-2">
+                                <div class="col-8">
+                                    <input type="text" class="form-control item-product-name" placeholder="Tên sản phẩm" readonly>
+                                </div>
+                                <div class="col-2">
+                                    <input type="number" class="form-control item-quantity" placeholder="SL" min="1" value="1" required>
+                                </div>
+                                <div class="col-2">
+                                    <input type="text" class="form-control item-price" placeholder="Giá" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            };
+
+            document.getElementById('btnAddItem').addEventListener('click', () => {
+                itemIndex++;
+                container.insertAdjacentHTML('beforeend', createNewItemRow(itemIndex));
+                attachRemoveListeners();
+                setupProductSearch(API_BASE); // Gắn lại listener cho ô tìm kiếm mới
+            });
+
+            const attachRemoveListeners = () => {
+                document.querySelectorAll('.btn-remove-item').forEach(btn => {
+                    btn.onclick = (e) => {
+                        if (document.querySelectorAll('.order-item').length > 1) {
+                             e.target.closest('.order-item').remove();
+                        }
+                    };
+                });
+            };
+            
+            attachRemoveListeners();
+            setupProductSearch(API_BASE); // Gắn listener cho ô tìm kiếm đầu tiên
+            
+            // Xử lý nút Submit
+            document.getElementById('btnSubmitCreateOrder').addEventListener('click', () => {
+                handleCreateOrderSubmit(popup, API_BASE);
+            });
+        }
+    });
+}
+
+function setupProductSearch(API_BASE) {
+    document.querySelectorAll('.item-product-search').forEach(input => {
+        // Hủy bỏ các listener cũ để tránh gắn nhiều lần
+        input.onkeyup = null; 
+        
+        let timeout = null;
+        
+        // Sử dụng onkeyup để lắng nghe sự kiện gõ phím
+        input.onkeyup = (e) => {
+            const query = e.target.value.trim();
+            const resultsDropdown = e.target.parentElement.querySelector('.search-results-dropdown');
+            const itemRow = e.target.closest('.order-item');
+            
+            clearTimeout(timeout);
+            
+            // Chỉ bắt đầu tìm kiếm khi có từ 2 ký tự trở lên
+            if (query.length < 2) {
+                resultsDropdown.style.display = 'none';
+                return;
+            }
+
+            // Đặt timeout để giảm số lần gọi API
+            timeout = setTimeout(async () => {
+                try {
+                    // Gọi API tìm kiếm sản phẩm
+                    const result = await apiGet(`${API_BASE}/products/search`, { q: query });
+                    
+                    if (result && result.success && result.data.length > 0) {
+                        // Hiển thị kết quả tìm kiếm
+                        resultsDropdown.innerHTML = result.data.map(p => `
+                            <button type="button" class="list-group-item list-group-item-action" 
+                                data-id="${p.id}" 
+                                data-name="${p.name}" 
+                                data-price="${p.price}">
+                                [ID: ${p.id}] ${p.name} (${Number(p.price).toLocaleString('vi-VN')} VNĐ)
+                            </button>
+                        `).join('');
+                        resultsDropdown.style.display = 'block';
+                        
+                        // Gắn sự kiện khi chọn sản phẩm
+                        resultsDropdown.querySelectorAll('button').forEach(button => {
+                            button.onclick = () => {
+                                // Điền thông tin sản phẩm vào form
+                                itemRow.querySelector('.item-product-id').value = button.dataset.id;
+                                itemRow.querySelector('.item-product-search').value = `[ID: ${button.dataset.id}] ${button.dataset.name}`;
+                                itemRow.querySelector('.item-product-name').value = button.dataset.name;
+                                itemRow.querySelector('.item-price').value = Number(button.dataset.price).toLocaleString('vi-VN');
+                                resultsDropdown.style.display = 'none';
+                            };
+                        });
+                    } else {
+                        resultsDropdown.innerHTML = `<button type="button" class="list-group-item text-muted disabled">Không tìm thấy</button>`;
+                        resultsDropdown.style.display = 'block';
+                    }
+                } catch (error) { // <--- LỖI CÚ PHÁP ĐÃ ĐƯỢC SỬA TẠI ĐÂY
+                    console.error("Lỗi tìm kiếm sản phẩm (API hoặc Network):", error);
+                    resultsDropdown.innerHTML = `<button type="button" class="list-group-item text-danger disabled">Lỗi kết nối API</button>`;
+                    resultsDropdown.style.display = 'block';
+                }
+            }, 300);
+        };
+        
+        // Đóng dropdown khi click ra ngoài
+        document.addEventListener('click', (event) => {
+             const resultsDropdown = input.parentElement.querySelector('.search-results-dropdown');
+             if (!input.contains(event.target) && !resultsDropdown.contains(event.target)) {
+                 resultsDropdown.style.display = 'none';
+             }
+        });
+    });
+}
+
+
+
   function renderOrderRows(orders, page = 1, totalPages = 1) {
     const tbody = document.querySelector(tableBodySel);
+    
+    // Đếm số cột (8 cột dữ liệu + 1 cột thao tác = 9)
+    const COL_SPAN = 9; 
+
     if (!Array.isArray(orders) || orders.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted">Không có dữ liệu</td></tr>`;
-      renderPagination(1, 1, 0); // Cập nhật để có 3 tham số
-      return;
+        tbody.innerHTML = `<tr><td colspan="${COL_SPAN}" class="text-center py-4 text-muted">Không có dữ liệu</td></tr>`;
+        renderPagination(1, 1, 0); 
+        return;
     }
+    
+    // Hàm định dạng tiền tệ
+    const formatVND = (amount) => Number(amount || 0).toLocaleString('vi-VN') + ' VNĐ';
+    
+    /**
+     * HÀM TÍNH TOÁN GIÁ TRỊ CUỐI CÙNG (Chỉ xử lý mã giảm giá đầu tiên)
+     */
+    function calculateFinalCost(originalCost, discountString) {
+        if (!discountString || discountString === '-') {
+            return originalCost;
+        }
+
+        let finalCost = originalCost;
+        const discounts = discountString.split(', '); 
+        const firstDiscount = discounts[0]; // Chỉ lấy mã giảm giá đầu tiên
+
+        try {
+            if (firstDiscount.endsWith('%')) {
+                // Giảm giá theo phần trăm
+                const percentage = parseFloat(firstDiscount.replace('%', ''));
+                if (!isNaN(percentage)) {
+                    finalCost = finalCost * (1 - percentage / 100);
+                }
+            } else if (firstDiscount.endsWith(' VNĐ')) {
+                // Giảm giá theo giá trị tiền tệ
+                // Loại bỏ dấu phân cách hàng nghìn (nếu có) trước khi parse
+                const flatValue = parseFloat(firstDiscount.replace(' VNĐ', '').replace(/\./g, ''));
+                if (!isNaN(flatValue)) {
+                    finalCost = finalCost - flatValue;
+                }
+            }
+        } catch (e) {
+            console.error("Lỗi khi tính toán giảm giá:", e);
+            return originalCost;
+        }
+        
+        // Đảm bảo chi phí không âm
+        return Math.max(0, finalCost);
+    }
+    // END HÀM TÍNH TOÁN
+
     tbody.innerHTML = orders.map(o => {
-      const statusDropdownHtml = createStatusDropdown(o.status || 'pending');
-      return `
-        <tr>
-          <td>${o.user_name || o.user || '-'}</td>
-          <td>${Number(o.total_price || o.total || 0).toLocaleString('vi-VN')} VNĐ</td>
-          <td>${o.address || o.shipping_address || '-'}</td>
-          <td>${o.payment_method || '-'}</td>
-          <td>${statusDropdownHtml}</td> 
-          <td>${o.note || ''}</td>
-          <td>${o.created_at || '-'}</td>
-          <td class="text-end td-actions">
-            <button class="btn btn-outline-success btn-sm btn-save me-1" data-id="${o.id}">Lưu</button>
-            <button class="btn btn-outline-primary btn-sm btn-view-order me-1" data-id="${o.id}">Xem</button>
-            </td>
+        const statusDropdownHtml = createStatusDropdown(o.status || 'pending'); 
+        const discountValues = o.applied_discount_values || '-'; 
+        
+        // Tổng tiền gốc (o.total_cost)
+        const originalCost = Number(o.total_cost || 0); 
+        
+        // Tính tổng tiền cuối cùng (sau giảm giá)
+        const finalCost = calculateFinalCost(originalCost, discountValues); 
+
+        return `
+            <tr>
+                <td>${o.customer_name || o.user_name || o.user || '-'}</td> 
+                
+                <td>${o.address || o.shipping_address || '-'}</td>
+                
+                <td>${statusDropdownHtml}</td> 
+                
+                <td>${o.payment_method || '-'}</td>
+                
+                <td>${o.date || '-'}</td>
+                
+                <td>${formatVND(originalCost)}</td> 
+                
+                <td>${discountValues}</td> 
+                
+                <td>${formatVND(finalCost)}</td> 
+                
+                <td class="text-end td-actions" colspan="2">
+                    <button class="btn btn-outline-success btn-sm btn-save me-1" data-id="${o.id}">Lưu</button>
+                    <button class="btn btn-outline-primary btn-sm btn-view-order me-1" data-id="${o.id}">Xem</button>
+                </td>
             </tr>
             `;
-            // <button class="btn btn-outline-danger btn-sm btn-delete" data-id="${o.id}">Xoá</button>
     }).join('');
-    renderPagination(page, totalPages, state.totalItems); // Truyền totalItems
-  }
+    renderPagination(page, totalPages, state.totalItems); 
+}
 
   /**
    * --- HÀM RENDERPAGINATION (ĐÃ THAY THẾ HOÀN TOÀN) ---
@@ -192,20 +547,23 @@ ready(async () => {
   async function fetchAndRenderOrders(page, kw, status) {
     document.querySelector(tableBodySel).innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted">Đang tải dữ liệu...</td></tr>`;
     try {
-      let url = `${API_BASE}/orders?page=${page}`;
-      if (kw) url += `&search=${encodeURIComponent(kw)}`;
+      const params = { page: page };
+      if (kw) params.search = kw;
       if (status && status !== 'all') {
-        url += `&status=${encodeURIComponent(status)}`;
+        params.status = status;
       }
-      const data = await fetchJson(url);
-      const orders = data.orders || [];
+      
+      // THAY THẾ bằng apiGet
+      const response = await apiGet('orders', params);
+      
+      const orders = response.data || [];
 
       // Cập nhật state (Quan trọng: API phải trả về total và total_pages)
-      state.page = data.page || 1;
-      state.totalPages = data.pagination?.total_pages || data.total_pages || 1;
-      state.totalItems = data.pagination?.total || data.total || 0;
-      state.keyword = kw;
-      state.status = status;
+      state.page = response.pagination?.page || 1;
+      state.totalPages = response.pagination?.total_pages || 1;
+      state.totalItems = response.pagination?.total || 0;
+      state.keyword = kw;
+      state.status = status;
 
       renderOrderRows(orders, state.page, state.totalPages);
     } catch (err) {
@@ -217,17 +575,19 @@ ready(async () => {
   async function fetchAndRenderCarts(page, kw) {
     document.querySelector(tableBodySel).innerHTML = `<tr><td colspan="4" class="text-center py-4 text-muted">Đang tải dữ liệu...</td></tr>`;
     try {
-      let url = `${API_BASE}/carts?page=${page}`;
-      if (kw) url += `&search=${encodeURIComponent(kw)}`;
+      const params = { page: page };
+      if (kw) params.search = kw;
 
-      const cartsRes = await fetchJson(url);
+      
+      const cartsRes = await apiGet('carts', params); 
+      
       const carts = cartsRes.data || cartsRes.carts || cartsRes.cart || [];
 
       // Cập nhật state (Quan trọng: API phải trả về total và total_pages)
-      state.page = cartsRes.page || 1;
-      state.totalPages = cartsRes.pagination?.total_pages || cartsRes.total_pages || 1;
-      state.totalItems = cartsRes.pagination?.total || cartsRes.total || 0;
-      state.keyword = kw;
+      state.page = cartsRes.pagination?.page || 1; 
+      state.totalPages = cartsRes.pagination?.total_pages || cartsRes.total_pages || 1;
+      state.totalItems = cartsRes.pagination?.total || cartsRes.total || 0;
+      state.keyword = kw;
 
       renderCartRows(carts, state.page, state.totalPages);
     } catch (err) {
@@ -304,6 +664,13 @@ ready(async () => {
     loadCurrentTabData();
   });
 
+
+  document.getElementById('btnCreateOrder')?.addEventListener('click', () => {
+        showCreateOrderModal(popup, API_BASE);
+    });
+
+
+
   document.addEventListener('click', async (e) => {
     // --- CẬP NHẬT SỰ KIỆN CLICK PHÂN TRANG ---
     const pageLink = e.target.closest('.page-link'); // Tìm thẻ <a>
@@ -328,13 +695,8 @@ ready(async () => {
       if (!dropdown) return;
       const newStatus = dropdown.value;
       try {
-        await fetch(`${API_BASE}/orders/${id}/status`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: newStatus })
-        });
+        await apiPut(`orders/${id}/status`, { status: newStatus });
         alert('Cập nhật trạng thái thành công!');
-        // Tải lại để cập nhật (nếu đang lọc)
         await loadCurrentTabData();
       } catch (err) {
         console.error("Lỗi khi lưu đơn hàng:", err);
@@ -348,59 +710,71 @@ ready(async () => {
       const id = e.target.dataset.id;
       if (!confirm('Bạn có chắc muốn xoá đơn hàng này?')) return;
       try {
-        await fetch(`${API_BASE}/orders/${id}`, { method: 'DELETE' });
+        // THAY THẾ fetch TRỰC TIẾP bằng apiDelete
+        await apiDelete(`orders/${id}`);
         loadCurrentTabData();
       } catch (err) {
         console.error("Lỗi khi xóa đơn hàng:", err);
+        alert("Xóa đơn hàng thất bại!");
       }
       return;
     }
 
     if (e.target.classList.contains('btn-view-order')) {
-      const id = e.target.getAttribute('data-id');
-      try {
-        const orderRes = await fetchJson(`${API_BASE}/orders/${id}`);
-        const order = orderRes.order || orderRes;
-        const items = orderRes.items || [];
-        let content = `
-        <div><strong>ID đơn hàng:</strong> ${order.id}</div>
-        <div><strong>Khách hàng:</strong> ${order.user_name || order.user || '-'}</div>
-        <div><strong>Địa chỉ giao hàng:</strong> ${order.address || order.shipping_address || '-'}</div>
-        <div><strong>Phương thức thanh toán:</strong> ${order.payment_method || '-'}</div>
-        <div><strong>Trạng thái:</strong> ${order.status}</div>
-        <div><strong>Ngày tạo:</strong> ${order.created_at}</div>
-        <hr/>
-        <div><strong>Chi tiết sản phẩm:</strong></div>
-        <div class="table-responsive">
-          <table class="table table-striped">
-                        <thead>
-              <tr><th></th><th>Sản phẩm</th><th>Màu</th><th>Size</th><th>Số lượng</th><th>Giá</th></tr>
-            </thead>
-            <tbody>
-              ${(items || []).map(i => `
-                <tr>
-                  <td><img src="${BASE_URL + '/' + i.product_image}" alt="sp" style="width:48px;height:48px;object-fit:cover;border-radius:5px;"></td>
-                  <td>${i.name || i.product_name || '-'}</td>
-                  <td>${i.color || '-'}</td>
-                  <td>${i.size || '-'}</td>
-                  <td>${i.quantity || 1}</td>
-                  <td>${Number(i.price || 0).toLocaleString('vi-VN')} VNĐ</td>
-                            </tr>
-              `).join('')}
-            </tbody>
-                    </table>
-                </div>
-        <div><strong>Tổng tiền:</strong> ${Number(order.total_value || order.total_price || 0).toLocaleString('vi-VN')} VNĐ</div>
-        `;
-        popup.show({ title: `Chi tiết đơn #${order.id}`, content });
-      } catch (err) {
-        popup.show({ title: 'Lỗi', content: 'Không thể tải chi tiết đơn hàng.' });
-      }
-    }
+      const id = e.target.getAttribute('data-id');
+      try {
+        // 1. Gọi API lấy chi tiết đơn hàng
+        const response = await apiGet(`orders/${id}`);
+        
+        // 2. Lấy dữ liệu đơn hàng (Xử lý các cấu trúc response khác nhau)
+        const orderData = response.data || response.order || response;
+        const order = orderData.order || orderData;
+        const items = orderData.items || [];
+        
+        if (!order || !order.id) {
+          throw new Error('Không tìm thấy dữ liệu đơn hàng.');
+        }
+
+        let content = `
+        <div><strong>ID đơn hàng:</strong> ${order.id}</div>
+        <div><strong>Khách hàng:</strong> ${order.customer_name || order.user_name || order.user || '-'}</div>
+        <div><strong>Địa chỉ giao hàng:</strong> ${order.address || order.shipping_address || '-'}</div>
+        <div><strong>Phương thức thanh toán:</strong> ${order.payment_method || '-'}</div>
+        <div><strong>Trạng thái:</strong> ${STATUS_OPTIONS[order.status] || order.status || '-'}</div>
+        <div><strong>Ngày tạo:</strong> ${order.date || order.created_at || '-'}</div>
+        <hr/>
+        <div><strong>Chi tiết sản phẩm:</strong></div>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr><th></th><th>Sản phẩm</th><th>Màu</th><th>Size</th><th>Số lượng</th><th>Giá</th></tr>
+            </thead>
+            <tbody>
+              ${(items || []).map(i => `
+                <tr>
+                  <td><img src="${i.product_image}" alt="sp" style="width:48px;height:48px;object-fit:cover;border-radius:5px;"></td>
+                  <td>${i.name || i.product_name || '-'}</td>
+                  <td>${i.color || '-'}</td>
+                  <td>${i.size || '-'}</td>
+                  <td>${i.quantity || 1}</td>
+                  <td>${Number(i.price || 0).toLocaleString('vi-VN')} VNĐ</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+        <div><strong>Tổng tiền:</strong> ${Number(order.total_cost || order.total_value || order.total_price || 0).toLocaleString('vi-VN')} VNĐ</div>
+        `;
+        popup.show({ title: `Chi tiết đơn #${order.id}`, content });
+      } catch (err) {
+        console.error("Lỗi khi xem chi tiết đơn hàng:", err);
+        popup.show({ title: 'Lỗi', content: 'Không thể tải chi tiết đơn hàng. Vui lòng kiểm tra console log hoặc API Backend.' });
+      }
+    }
     if (e.target.classList.contains('btn-view-cart')) {
       const id = e.target.getAttribute('data-id');
       try {
-        const cartRes = await fetchJson(`${API_BASE}/carts/${id}`);
+        const cartRes = await apiGet(`carts/${id}`);
         const cart = cartRes.cart || cartRes;
         const items = cartRes.items || [];
         const total = cartRes.total || 0;
@@ -419,7 +793,7 @@ ready(async () => {
             <tbody>
               ${(items || []).map(i => `
                 <tr>
-                  <td><img src="${BASE_URL + '/' + i.image}" alt="sp" style="width:48px;height:48px;object-fit:cover;border-radius:5px;"></td>
+                  <td><img src="${i.product_image}" alt="sp" style="width:48px;height:48px;object-fit:cover;border-radius:5px;"></td>
                   <td>${i.name || i.product_name || '-'}</td>
                   <td>${i.color || '-'}</td>
                   <td>${i.size || '-'}</td>
