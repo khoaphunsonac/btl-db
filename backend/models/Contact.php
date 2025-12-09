@@ -160,24 +160,80 @@ class Contact extends BaseModel
     }
     
     /**
+     * Get first valid customer_id or create guest customer
+     */
+    private function getValidCustomerId($requestedId = null)
+    {
+        // If customer_id provided, verify it exists
+        if ($requestedId !== null) {
+            $checkSql = "SELECT id FROM Customer WHERE id = :id LIMIT 1";
+            $checkStmt = $this->pdo->prepare($checkSql);
+            $checkStmt->bindValue(':id', $requestedId, PDO::PARAM_INT);
+            $checkStmt->execute();
+            
+            if ($checkStmt->fetch()) {
+                return $requestedId;
+            }
+        }
+        
+        // Get any existing customer ID
+        $sql = "SELECT id FROM Customer ORDER BY id ASC LIMIT 1";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($result) {
+            return $result['id'];
+        }
+        
+        // If no customer exists, return null and let it fail with clear error
+        return null;
+    }
+    
+    /**
      * Create new contact
      */
     public function create($data)
     {
-        $sql = "INSERT INTO {$this->table} (customer_id, content, date) VALUES (:customer_id, :content, NOW())";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->bindValue(':customer_id', $data['customer_id'] ?? null, PDO::PARAM_INT);
-        $stmt->bindValue(':content', $data['content'] ?? $data['message']);
-        
-        if ($stmt->execute()) {
-            return [
-                'id' => $this->pdo->lastInsertId(),
-                'customer_id' => $data['customer_id'] ?? null,
-                'content' => $data['content'] ?? $data['message'],
-                'date' => date('Y-m-d H:i:s')
-            ];
+        try {
+            // Get content from either 'content' or 'message' field
+            $content = $data['content'] ?? $data['message'] ?? null;
+            
+            // customer_id is NOT NULL in database, must provide valid ID
+            $requestedCustomerId = $data['customer_id'] ?? null;
+            $customerId = $this->getValidCustomerId($requestedCustomerId);
+            
+            if ($customerId === null) {
+                error_log("Contact insert error: No valid customer_id found. Database requires customer_id NOT NULL.");
+                return false;
+            }
+            
+            $sql = "INSERT INTO {$this->table} (customer_id, content, date) VALUES (:customer_id, :content, NOW())";
+            $stmt = $this->pdo->prepare($sql);
+            
+            $stmt->bindValue(':customer_id', $customerId, PDO::PARAM_INT);
+            $stmt->bindValue(':content', $content, PDO::PARAM_STR);
+            
+            if ($stmt->execute()) {
+                $insertedId = $this->pdo->lastInsertId();
+                error_log("Contact created successfully with ID: " . $insertedId . " (customer_id: " . $customerId . ")");
+                
+                return [
+                    'id' => $insertedId,
+                    'customer_id' => $customerId,
+                    'content' => $content,
+                    'date' => date('Y-m-d H:i:s')
+                ];
+            }
+            
+            error_log("Contact insert failed: execute() returned false");
+            return false;
+            
+        } catch (PDOException $e) {
+            error_log("Contact insert error: " . $e->getMessage());
+            error_log("SQL: " . ($sql ?? 'N/A'));
+            error_log("Data: " . json_encode($data));
+            return false;
         }
-        
-        return false;
     }
 }

@@ -60,7 +60,24 @@ class ContactController {
      * Tạo yêu cầu liên hệ mới
      */
     public function store() {
-        $data = json_decode(file_get_contents("php://input"), true);
+        // Get raw input
+        $rawInput = file_get_contents("php://input");
+        error_log("Contact POST raw input: " . $rawInput);
+        
+        $data = json_decode($rawInput, true);
+        
+        // Check JSON decode error
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false, 
+                'message' => 'Invalid JSON',
+                'error' => json_last_error_msg()
+            ]);
+            return;
+        }
+        
+        error_log("Contact POST decoded data: " . json_encode($data));
         
         // Validate
         $errors = $this->validateContact($data);
@@ -74,10 +91,17 @@ class ContactController {
         
         if ($result) {
             http_response_code(201);
-            echo json_encode(['success' => true, 'message' => 'Gửi yêu cầu liên hệ thành công', 'data' => $result]);
+            echo json_encode([
+                'success' => true, 
+                'message' => 'Gửi yêu cầu liên hệ thành công', 
+                'data' => $result
+            ]);
         } else {
             http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Gửi yêu cầu liên hệ thất bại']);
+            echo json_encode([
+                'success' => false, 
+                'message' => 'Gửi yêu cầu liên hệ thất bại. Kiểm tra error log để biết chi tiết.'
+            ]);
         }
     }
     
