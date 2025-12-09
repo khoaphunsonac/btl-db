@@ -1,0 +1,484 @@
+{
+	"info": {
+		"_postman_id": "contact-insert-collection",
+		"name": "Insert Contacts - BTL Database",
+		"description": "Collection để insert các contact vào database qua API - KHÔNG CẦN TRƯỜNG ID",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Insert Contact - Sản phẩm balo",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"content\": \"Tôi muốn hỏi về chất liệu của sản phẩm balo học sinh\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost/btl-db/backend/routes/api.php/contacts",
+					"protocol": "http",
+					"host": ["localhost"],
+					"path": ["btl-db", "backend", "routes", "api.php", "contacts"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2. Insert Contact - Màu sắc túi xách",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"customer_id\": 2,\n  \"content\": \"Sản phẩm túi xách có màu nào khác không?\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost/btl-db/backend/routes/api.php/contacts",
+					"protocol": "http",
+					"host": ["localhost"],
+					"path": ["btl-db", "backend", "routes", "api.php", "contacts"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3. Insert Contact - Đổi size",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"customer_id\": 3,\n  \"content\": \"Tôi muốn đổi size cho sản phẩm đã mua\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost/btl-db/backend/routes/api.php/contacts",
+					"protocol": "http",
+					"host": ["localhost"],
+					"path": ["btl-db", "backend", "routes", "api.php", "contacts"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "4. Insert Contact - Khuyến mãi",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"customer_id\": 4,\n  \"content\": \"Khi nào có chương trình khuyến mãi?\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost/btl-db/backend/routes/api.php/contacts",
+					"protocol": "http",
+					"host": ["localhost"],
+					"path": ["btl-db", "backend", "routes", "api.php", "contacts"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "5. Insert Contact - Bảo hành",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"customer_id\": 5,\n  \"content\": \"Sản phẩm có bảo hành không?\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost/btl-db/backend/routes/api.php/contacts",
+					"protocol": "http",
+					"host": ["localhost"],
+					"path": ["btl-db", "backend", "routes", "api.php", "contacts"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "6. Insert Contact - Giao hàng",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"customer_id\": 6,\n  \"content\": \"Đơn hàng của tôi đã được giao chưa?\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost/btl-db/backend/routes/api.php/contacts",
+					"protocol": "http",
+					"host": ["localhost"],
+					"path": ["btl-db", "backend", "routes", "api.php", "contacts"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "7. Insert Contact - Đổi địa chỉ",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"customer_id\": 7,\n  \"content\": \"Tôi muốn thay đổi địa chỉ giao hàng\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost/btl-db/backend/routes/api.php/contacts",
+					"protocol": "http",
+					"host": ["localhost"],
+					"path": ["btl-db", "backend", "routes", "api.php", "contacts"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "8. Insert Contact - Phí ship",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"customer_id\": 8,\n  \"content\": \"Phí ship về tỉnh là bao nhiêu?\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost/btl-db/backend/routes/api.php/contacts",
+					"protocol": "http",
+					"host": ["localhost"],
+					"path": ["btl-db", "backend", "routes", "api.php", "contacts"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "9. Insert Contact - Thanh toán",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"customer_id\": 9,\n  \"content\": \"Tôi có thể thanh toán qua ví điện tử không?\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost/btl-db/backend/routes/api.php/contacts",
+					"protocol": "http",
+					"host": ["localhost"],
+					"path": ["btl-db", "backend", "routes", "api.php", "contacts"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "10. Insert Contact - Hoàn tiền",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"customer_id\": 10,\n  \"content\": \"Làm thế nào để được hoàn tiền?\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost/btl-db/backend/routes/api.php/contacts",
+					"protocol": "http",
+					"host": ["localhost"],
+					"path": ["btl-db", "backend", "routes", "api.php", "contacts"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "11. Insert Contact - Đổi trả sản phẩm lỗi",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"customer_id\": 1,\n  \"content\": \"Sản phẩm bị lỗi, tôi muốn đổi trả\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost/btl-db/backend/routes/api.php/contacts",
+					"protocol": "http",
+					"host": ["localhost"],
+					"path": ["btl-db", "backend", "routes", "api.php", "contacts"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "12. Insert Contact - Đánh giá tích cực",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"customer_id\": 2,\n  \"content\": \"Chất lượng sản phẩm rất tốt, cảm ơn shop!\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost/btl-db/backend/routes/api.php/contacts",
+					"protocol": "http",
+					"host": ["localhost"],
+					"path": ["btl-db", "backend", "routes", "api.php", "contacts"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "13. Insert Contact - Chống nước",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"customer_id\": 3,\n  \"content\": \"Túi có chống nước không?\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost/btl-db/backend/routes/api.php/contacts",
+					"protocol": "http",
+					"host": ["localhost"],
+					"path": ["btl-db", "backend", "routes", "api.php", "contacts"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "14. Insert Contact - Tư vấn balo học sinh",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"customer_id\": 4,\n  \"content\": \"Tôi nên chọn balo nào phù hợp cho học sinh cấp 2?\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost/btl-db/backend/routes/api.php/contacts",
+					"protocol": "http",
+					"host": ["localhost"],
+					"path": ["btl-db", "backend", "routes", "api.php", "contacts"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "15. Insert Contact - Túi công sở",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"customer_id\": 5,\n  \"content\": \"Có túi xách công sở không?\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost/btl-db/backend/routes/api.php/contacts",
+					"protocol": "http",
+					"host": ["localhost"],
+					"path": ["btl-db", "backend", "routes", "api.php", "contacts"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "16. Insert Contact - Đặt hàng theo yêu cầu",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"customer_id\": 6,\n  \"content\": \"Shop có nhận đặt hàng theo yêu cầu không?\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost/btl-db/backend/routes/api.php/contacts",
+					"protocol": "http",
+					"host": ["localhost"],
+					"path": ["btl-db", "backend", "routes", "api.php", "contacts"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "17. Insert Contact - Mua số lượng lớn",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"customer_id\": 7,\n  \"content\": \"Tôi muốn mua số lượng lớn, có giảm giá không?\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost/btl-db/backend/routes/api.php/contacts",
+					"protocol": "http",
+					"host": ["localhost"],
+					"path": ["btl-db", "backend", "routes", "api.php", "contacts"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "18. Insert Contact - Gói quà",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"customer_id\": 8,\n  \"content\": \"Có dịch vụ gói quà không?\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost/btl-db/backend/routes/api.php/contacts",
+					"protocol": "http",
+					"host": ["localhost"],
+					"path": ["btl-db", "backend", "routes", "api.php", "contacts"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "19. Insert Contact - Sản phẩm mới",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"customer_id\": 9,\n  \"content\": \"Sản phẩm mới về khi nào?\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost/btl-db/backend/routes/api.php/contacts",
+					"protocol": "http",
+					"host": ["localhost"],
+					"path": ["btl-db", "backend", "routes", "api.php", "contacts"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "20. Insert Contact - Showroom",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"customer_id\": 10,\n  \"content\": \"Shop có showroom để khách xem hàng không?\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost/btl-db/backend/routes/api.php/contacts",
+					"protocol": "http",
+					"host": ["localhost"],
+					"path": ["btl-db", "backend", "routes", "api.php", "contacts"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "BONUS - Get All Contacts",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost/btl-db/backend/routes/api.php/contacts",
+					"protocol": "http",
+					"host": ["localhost"],
+					"path": ["btl-db", "backend", "routes", "api.php", "contacts"]
+				}
+			},
+			"response": []
+		}
+	]
+}
